@@ -1,1 +1,4 @@
 
+[submodule "pytorch_classification"]
+	path = pytorch_classification
+	url = https://github.com/bearpaw/pytorch-classification.git
