@@ -17,7 +17,7 @@ args = dotdict({
     'n_label': 1121,  # 3 classes
     'train_num_drugs': 800,
     'lr': 0.001,
-    'learning_rate_decay': 0.9,
+    'learning_rate_decay': 0.95,
     'weight_decay': 5e-5,
     'balance_loss': True,
     'max_len': 300,
@@ -44,6 +44,13 @@ state = {k: v for k, v in args.items()}
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        checkpoint_dir = sys.argv[1]
+        print('loading from checkpoint in {}'.format(checkpoint_dir))
+        checkpoint = load_checkpoint(checkpoint=checkpoint_dir)
+        args = checkpoint['args']
+        state = {k: v for k, v in args.items()}
+
     print(args)
 
     dm = datamanager.TextDataManager(args)
@@ -72,9 +79,6 @@ if __name__ == "__main__":
 
     # load trained model from checkpoint
     if len(sys.argv) > 1:
-        checkpoint_dir = sys.argv[1]
-        print('loading from checkpoint in {}'.format(checkpoint_dir))
-        checkpoint = load_checkpoint(checkpoint=checkpoint_dir)
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         state['lr'] = checkpoint['lr']
@@ -106,6 +110,7 @@ if __name__ == "__main__":
             best_dev_acc = dev_acc
             save_checkpoint(
                 state={
+                    'args': args,
                     'epoch': epoch + 1,
                     'state_dict': model.state_dict(),
                     'acc': dev_acc,
@@ -116,6 +121,7 @@ if __name__ == "__main__":
         print('Saving to checkpoint')
         save_checkpoint(
             state={
+                'args': args,
                 'epoch': epoch + 1,
                 'state_dict': model.state_dict(),
                 'acc': dev_acc,
