@@ -161,7 +161,7 @@ def test(model, dm, loss_criterion, args, is_dev=True):
         else:
             (des, des_unsort, ind, ind_unsort, act, act_unsort, targets) = dm.sample_test_batch(
                 batch_size=batch_size, embed1=model.glove_embed, embed2=model.other_embed, use_cuda=args.cuda)
-        encoder_init_hidden = model.encoder.initHidden(batch_size=args.batch_size)
+        encoder_init_hidden = model.encoder.initHidden(batch_size=batch_size)
 
         if args.cuda:
             model = model.cuda()
@@ -181,23 +181,23 @@ def test(model, dm, loss_criterion, args, is_dev=True):
                              ind_embed=ind, ind_unsort=ind_unsort,
                              act_embed=act, act_unsort=act_unsort,
                              encoder_init_hidden=encoder_init_hidden,
-                             batch_size=args.batch_size)
+                             batch_size=batch_size)
         loss = loss_criterion(logit_output, targets)
 
         # measure precision, recall, fscore, support and record loss
         batch_p_micro, batch_r_micro, batch_f_micro, batch_s_micro, batch_p_macro, batch_r_macro, batch_f_macro\
             , batch_s_macro, batch_mAP = compute_metrics(logit=logit_output, target=targets)
 
-        p_macro.update(batch_p_macro, args.batch_size)
-        p_micro.update(batch_p_micro, args.batch_size)
-        r_macro.update(batch_r_macro, args.batch_size)
-        r_micro.update(batch_r_micro, args.batch_size)
-        f_macro.update(batch_f_macro, args.batch_size)
-        f_micro.update(batch_f_micro, args.batch_size)
-        s_macro.update(batch_s_macro, args.batch_size)
-        mAP.update(batch_mAP, args.batch_size)
+        p_macro.update(batch_p_macro, batch_size)
+        p_micro.update(batch_p_micro, batch_size)
+        r_macro.update(batch_r_macro, batch_size)
+        r_micro.update(batch_r_micro, batch_size)
+        f_macro.update(batch_f_macro, batch_size)
+        f_micro.update(batch_f_micro, batch_size)
+        s_macro.update(batch_s_macro, batch_size)
+        mAP.update(batch_mAP, batch_size)
 
-        losses.update(loss.item(), args.batch_size)
+        losses.update(loss.item(), batch_size)
 
         # measure elapsed time
         batch_time.update(time.time() - end)
