@@ -5,6 +5,7 @@ import time
 import torch
 import sklearn
 import warnings
+import numpy as np
 
 from pytorch_classification.utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig
 
@@ -19,14 +20,17 @@ def compute_metrics(logit, target):
             = sklearn.metrics.precision_recall_fscore_support(y_true=target, y_pred=pred, average='micro')
         p_macro, r_macro, f_macro, s_macro \
             = sklearn.metrics.precision_recall_fscore_support(y_true=target, y_pred=pred, average='macro')
-        mAP = sklearn.metrics.average_precision_score(y_true=target, y_score=prob)
+        mAP_macro = sklearn.metrics.average_precision_score(y_true=target, y_score=prob, average='macro')
+        mAP_micro = sklearn.metrics.average_precision_score(y_true=target, y_score=prob, average='micro')
 
     if not s_macro:
         s_macro = 0
     if not s_micro:
         s_micro = 0
 
-    return p_micro, r_micro, f_micro, s_micro, p_macro, r_macro, f_macro, s_macro, mAP
+    acc = np.sum(pred == target)/float(pred.size)
+
+    return p_micro, r_micro, f_micro, s_micro, p_macro, r_macro, f_macro, s_macro, mAP_micro, mAP_macro, acc
 
 
 def train(model, dm, loss_criterion, optimizer, args):
@@ -42,7 +46,9 @@ def train(model, dm, loss_criterion, optimizer, args):
     r_macro = AverageMeter()
     f_macro = AverageMeter()
     s_macro = AverageMeter()
-    mAP = AverageMeter()
+    mAP_micro = AverageMeter()
+    mAP_macro = AverageMeter()
+    acc = AverageMeter()
 
     end = time.time()
 
@@ -78,7 +84,7 @@ def train(model, dm, loss_criterion, optimizer, args):
 
         # measure precision, recall, fscore, support and record loss
         batch_p_micro, batch_r_micro, batch_f_micro, batch_s_micro, batch_p_macro, batch_r_macro, batch_f_macro\
-            , batch_s_macro, batch_mAP = compute_metrics(logit=logit_output, target=targets)
+            , batch_s_macro, batch_mAP_micro, batch_mAP_macro, batch_acc = compute_metrics(logit=logit_output, target=targets)
 
         p_macro.update(batch_p_macro, args.batch_size)
         p_micro.update(batch_p_micro, args.batch_size)
@@ -87,7 +93,9 @@ def train(model, dm, loss_criterion, optimizer, args):
         f_macro.update(batch_f_macro, args.batch_size)
         f_micro.update(batch_f_micro, args.batch_size)
         s_macro.update(batch_s_macro, args.batch_size)
-        mAP.update(batch_mAP, args.batch_size)
+        mAP_micro.update(batch_mAP_micro, args.batch_size)
+        mAP_macro.update(batch_mAP_macro, args.batch_size)
+        acc.update(batch_acc, args.batch_size)
 
         losses.update(loss.item(), args.batch_size)
 
@@ -105,7 +113,7 @@ def train(model, dm, loss_criterion, optimizer, args):
 
         # plot progress
         bar.suffix = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s' \
-                     '| Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} ' \
+                     '| Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc:.3f} ' \
                      '| P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP: {mAP:.3f}|' \
             .format(
             batch=batch_idx,
@@ -115,15 +123,16 @@ def train(model, dm, loss_criterion, optimizer, args):
             total=bar.elapsed_td,
             eta=bar.eta_td,
             loss=losses.avg,
-            p=p_macro.avg,
-            r=r_macro.avg,
-            f=f_macro.avg,
-            mAP=mAP.avg,
+            acc=acc.avg,
+            p=p_micro.avg,
+            r=r_micro.avg,
+            f=f_micro.avg,
+            mAP=mAP_micro.avg,
         )
         bar.next()
     bar.finish()
 
-    return losses.avg, mAP.avg
+    return losses.avg, acc.avg
 
 
 def test(model, dm, loss_criterion, args, is_dev=True):
@@ -139,7 +148,9 @@ def test(model, dm, loss_criterion, args, is_dev=True):
     r_macro = AverageMeter()
     f_macro = AverageMeter()
     s_macro = AverageMeter()
-    mAP = AverageMeter()
+    mAP_micro = AverageMeter()
+    mAP_macro = AverageMeter()
+    acc = AverageMeter()
 
     end = time.time()
 
@@ -186,7 +197,7 @@ def test(model, dm, loss_criterion, args, is_dev=True):
 
         # measure precision, recall, fscore, support and record loss
         batch_p_micro, batch_r_micro, batch_f_micro, batch_s_micro, batch_p_macro, batch_r_macro, batch_f_macro\
-            , batch_s_macro, batch_mAP = compute_metrics(logit=logit_output, target=targets)
+            , batch_s_macro, batch_mAP_micro, batch_mAP_macro, batch_acc = compute_metrics(logit=logit_output, target=targets)
 
         p_macro.update(batch_p_macro, batch_size)
         p_micro.update(batch_p_micro, batch_size)
@@ -195,7 +206,9 @@ def test(model, dm, loss_criterion, args, is_dev=True):
         f_macro.update(batch_f_macro, batch_size)
         f_micro.update(batch_f_micro, batch_size)
         s_macro.update(batch_s_macro, batch_size)
-        mAP.update(batch_mAP, batch_size)
+        mAP_micro.update(batch_mAP_micro, batch_size)
+        mAP_macro.update(batch_mAP_macro, batch_size)
+        acc.update(batch_acc, batch_size)
 
         losses.update(loss.item(), batch_size)
 
@@ -206,7 +219,7 @@ def test(model, dm, loss_criterion, args, is_dev=True):
 
         # plot progress
         bar.suffix = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s' \
-                     '| Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} ' \
+                     '| Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc:.3f} ' \
                      '| P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP: {mAP:.3f}|' \
             .format(
             batch=batch_idx,
@@ -216,12 +229,13 @@ def test(model, dm, loss_criterion, args, is_dev=True):
             total=bar.elapsed_td,
             eta=bar.eta_td,
             loss=losses.avg,
-            p=p_macro.avg,
-            r=r_macro.avg,
-            f=f_macro.avg,
-            mAP=mAP.avg,
+            acc=acc.avg,
+            p=p_micro.avg,
+            r=r_micro.avg,
+            f=f_micro.avg,
+            mAP=mAP_micro.avg,
         )
         bar.next()
     bar.finish()
 
-    return losses.avg, mAP.avg
+    return losses.avg, acc.avg

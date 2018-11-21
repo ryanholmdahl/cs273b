@@ -27,14 +27,13 @@ def save_checkpoint(state, is_best, checkpoint='checkpoint',
         )
 
 
-def load_checkpoint(model, checkpoint,
+def load_checkpoint(checkpoint,
                     filename='checkpoint.pth.tar'):
     # https://github.com/pytorch/examples/blob/master/imagenet/main.py#L98
     filepath = os.path.join(checkpoint, filename)
     if not os.path.exists(filepath):
         raise("No best model in path {}".format(checkpoint))
     checkpoint = torch.load(filepath)
-    model.load_state_dict(checkpoint['state_dict'])
     return checkpoint
 
 
