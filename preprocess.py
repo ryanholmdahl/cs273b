@@ -35,30 +35,37 @@ def read_dbids_txt(filename):
     with open(filename, "r") as fd:
         lines = fd.readlines()
         dbids = [line.strip('\n') for line in lines]
+        #print(dbids)
         return dbids
 
 
-def read_text_features(filename, db_id_list):
-    with open(filename) as fd:
-        doc = xmltodict.parse(fd.read())
+def read_text_features(doc, db_id_list):
     length = len(doc['drugbank']['drug'])
 
     dicts = {tag: {} for tag in feature_tags}
 
     find_id = []
+    miss_id = []
     for dbid in db_id_list:
+        no_id = True
         for num in range(length):
             if type(doc['drugbank']['drug'][num]['drugbank-id']) == list:
-                xml_dbid = doc['drugbank']['drug'][num]['drugbank-id'][0]['#text']
+                xml_dbid = [doc['drugbank']['drug'][num]['drugbank-id'][0]['#text']] \
+                           + [doc['drugbank']['drug'][num]['drugbank-id'][i] for i in
+                              range(1, len(doc['drugbank']['drug'][num]['drugbank-id']))]
             else:
-                xml_dbid = doc['drugbank']['drug'][num]['drugbank-id']['#text']
-            if xml_dbid == dbid:
+                xml_dbid = [doc['drugbank']['drug'][num]['drugbank-id']['#text']]
+            if dbid in xml_dbid:
+                no_id = False
                 find_id.append(dbid)
                 for tag in feature_tags:
                     if tag in doc['drugbank']['drug'][num]:
                         dicts[tag][dbid] = doc['drugbank']['drug'][num][tag]
                     else:
                         dicts[tag][dbid] = NO_VALUE
+        if no_id:
+            miss_id.append(dbid)
+    print('Missing drug id:', miss_id)
     return dicts
 
 
@@ -80,13 +87,14 @@ if os.path.isfile(train_cache_file_name) and os.path.isfile(test_cache_file_name
         test_feature_dicts = pickle.load(cache)
 else:
     print('Reading from xml')
-    train_feature_dicts = read_text_features(os.path.join(constant.DATA_DIR,'drugbank.xml'), train_db_id)
-    test_feature_dicts = read_text_features(os.path.join(constant.DATA_DIR,'drugbank.xml'), test_db_id)
+    with open(os.path.join(constant.DATA_DIR,'drugbank.xml')) as fd:
+        doc = xmltodict.parse(fd.read())
+    train_feature_dicts = read_text_features(doc, train_db_id)
+    test_feature_dicts = read_text_features(doc, test_db_id)
     with open(train_cache_file_name, 'wb') as cache:
         pickle.dump(train_feature_dicts, cache)
     with open(test_cache_file_name, 'wb') as cache:
         pickle.dump(test_feature_dicts, cache)
-
 word_vocab = vocab.Vocab()
 
 print('Parsing sentences')

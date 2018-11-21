@@ -18,7 +18,7 @@ PAD_token = 0
 EOS_token = 1
 UNK_token = 2
 
-splitstring = '-|/|\.|_|\+|@|,'
+splitstring = '-|/|_|\+|@|\.|,'
 
 class Vocab:
     def __init__(self, logdir=None):
@@ -42,16 +42,14 @@ class Vocab:
 
     def addSentence(self, sentence):
         if sentence is None:
-            return
+            sentence = ""  # LSTM requires seq_len > 0
         sentence = sentence.strip().lower()
         words = word_tokenize(sentence)
-        tokens = [x for longword in words for x in re.split(splitstring, longword)]
+        tokens = [x for longword in words if len(longword)>1 for x in re.split(splitstring, longword)]
         for word in tokens:
-            self.addWord(word, strip=True)
+            self.addWord(word)
 
-    def addWord(self, word, strip=False):
-        if strip:
-            word = word.strip(''' ,.:;"()'/?<>[]{}\|!@#$%^&*''')
+    def addWord(self, word):
         if word not in self.word2index:
             self.word2index[word] = self.n_words
             self.word2count[word] = 1
@@ -62,7 +60,7 @@ class Vocab:
 
     def numberize_sentence(self, sentence):
         if sentence is None:
-            return []
+            return [EOS_token]
         sentence = sentence.strip().lower()
         words = word_tokenize(sentence)
         tokens = [x for longword in words for x in re.split(splitstring, longword)]
@@ -98,6 +96,9 @@ class Vocab:
 
         # embed
         seq_tensor = torch.cat([embed1(seq_tensor),embed2(seq_tensor)],-1)
+
+        # if torch.min(seq_lengths).item() <= 0:
+        #     print(seq_lengths,seq_tensor)
 
         # pack
         seq_pack_tensor = nn.utils.rnn.pack_padded_sequence(

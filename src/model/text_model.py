@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import numpy as np
+import src.dataman.vocab as vocab
 
 class RNNEncoder(nn.Module):
     def __init__(self, config):
@@ -11,7 +11,7 @@ class RNNEncoder(nn.Module):
         self.rnn = nn.LSTM(
             input_size=input_size,
             hidden_size=config.hidden_size,
-            num_layers=1,
+            num_layers=config.lstm_layer,
             dropout=config.dp_ratio,
             bidirectional=config.bidirectional)
 
@@ -26,6 +26,7 @@ class RNNEncoder(nn.Module):
     def forward(self, inputs, hidden, batch_size):
         outputs, (ht, ct) = self.rnn(inputs, hidden)
         return outputs
+
 
 class TextBaseModel(nn.Module):
     def __init__(self, config, classifier):
@@ -87,8 +88,8 @@ class TextClassifier(nn.Module):
     def __init__(self, config):
         super(TextClassifier, self).__init__()
         self.config = config
-        self.glove_embed = nn.Embedding(config.n_embed, config.glove_embedding_size)
-        self.other_embed = nn.Embedding(config.n_embed, config.other_embedding_size)
+        self.glove_embed = nn.Embedding(config.n_embed, config.glove_embedding_size, padding_idx=vocab.PAD_token)
+        self.other_embed = nn.Embedding(config.n_embed, config.other_embedding_size, padding_idx=vocab.PAD_token)
         if self.config.fix_emb_glove:
             self.glove_embed.weight.requires_grad = False
         if self.config.fix_emb_other:
@@ -114,7 +115,7 @@ class TextClassifier(nn.Module):
             ])
             prev_hidden_size = next_hidden_size
         self.base = nn.Sequential(*mlp_layers)
-        self.out = nn.Linear(prev_hidden_size, config.n_class)
+        self.out = nn.Linear(prev_hidden_size, config.n_label)
 
     def forward(
         self,
@@ -159,5 +160,5 @@ class TextClassifier(nn.Module):
             act_maxpool  # [batch_size, 3*embed_size]
         ], 1))  # [batch_size, 3*last_hidden_size]
 
-        logit_outputs = self.out(scores)  # [batch_size, n_class]
+        logit_outputs = self.out(scores)  # [batch_size, n_label]
         return logit_outputs
