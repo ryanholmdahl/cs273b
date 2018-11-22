@@ -1,7 +1,11 @@
 import os
+import sys
 
 ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
-DATA_DIR = os.path.join(ROOT_PATH, 'data')
+if 'linux' in sys.platform:
+    os.path.abspath('/data/data')
+else:
+    DATA_DIR = os.path.join(ROOT_PATH, 'data')
 GLOVE_DIR = os.path.join(DATA_DIR, 'glove')
 
 TRAIN_IDS = os.path.join(DATA_DIR, 'train_dbids.txt')
