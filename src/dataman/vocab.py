@@ -209,6 +209,6 @@ class Vocab:
                 vocab_tensors[i][:] = torch.Tensor(self.medw2v_model[token]).view(-1, self.medw2v_dim)
             except KeyError:
                 missing_cnt += 1
-                vocab_tensors[i][:] = unk_init(torch.Tensor(1, self.glove_dim))
+                vocab_tensors[i][:] = unk_init(torch.Tensor(1, self.medw2v_dim))
         #print('PubMed-w2v Miss', missing_cnt, 'words')
         return vocab_tensors.cpu().numpy()
