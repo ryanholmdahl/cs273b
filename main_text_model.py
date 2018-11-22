@@ -33,15 +33,13 @@ args = dotdict({
     'bidirectional': False,
     'glove_embedding_size': 300,
     'other_embedding_size': 200,
-    'embedding_size': 500,
+    'embedding_size': 300+200,
     'fix_emb_glove': True,
     'fix_emb_other': True,
     'dp_ratio': 0.2,
     'mlp_hidden_size_list': [32, 32],
     'cuda': torch.cuda.is_available(),
 })
-state = {k: v for k, v in args.items()}
-
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -49,15 +47,17 @@ if __name__ == "__main__":
         print('loading from checkpoint in {}'.format(checkpoint_dir))
         checkpoint = load_checkpoint(checkpoint=checkpoint_dir)
         args = checkpoint['args']
-        state = {k: v for k, v in args.items()}
 
+    args.embedding_size = args.glove_embedding_size + args.other_embedding_size
+    state = {k: v for k, v in args.items()}
     print(args)
 
     dm = datamanager.TextDataManager(args)
     args.n_embed = dm.vocab.n_words
     model = text_model.TextClassifier(config=args)
 
-    model.glove_embed.weight.data = torch.Tensor(dm.vocab.embed_vectors)
+    model.glove_embed.weight.data = torch.Tensor(dm.vocab.get_glove_embed_vectors())
+    model.other_embed.weight.data = torch.Tensor(dm.vocab.get_medw2v_embed_vectors())
 
     # Numbers of parameters
     print("number of trainable parameters found {}".format(sum(

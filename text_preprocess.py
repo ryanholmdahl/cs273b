@@ -105,6 +105,8 @@ for tag, feature_dict in train_feature_dicts.items():
 print("Vocabulary size:",word_vocab.n_words)
 word_vocab.add_glove_to_vocab(constant.GLOVE_DIR, 300)
 print("Vocabulary size:",word_vocab.n_words)
+word_vocab.add_medw2v_to_vocab(constant.DATA_DIR)
+print("Vocabulary size:",word_vocab.n_words)
 
 print('Numberizing sentences')
 maxlen = 0
@@ -129,10 +131,26 @@ for tag, feature_dict in test_feature_dicts.items():
 print(maxlen)
 print(len_bin)
 
-print('Getting embedding vectors')
-word_vocab.get_glove_embed_vectors()
-with open(os.path.join(constant.DATA_DIR,'embed_vectors.pkl'), 'wb') as fd:
-    pickle.dump(word_vocab.embed_vectors, fd)
+# print('Getting embedding vectors')
+# with open(os.path.join(constant.DATA_DIR,'embed_vectors.pkl'), 'wb') as fd:
+#     pickle.dump(word_vocab.get_glove_embed_vectors(), fd)
+
+missing_cnt = 0
+for i, token in word_vocab.index2word.items():
+    if i < 3:  # Skip the first 3 words PAD EOS UNK
+        continue
+    # token = token.strip(''',.:;"()'/?<>[]{}\|!@#$%^&*''')
+    # print(i,token,(token in stoi))
+    if token in word_vocab.glove_stoi:
+        pass
+    else:
+        try:
+            word_vocab.medw2v_model[token]
+        except KeyError:
+            print(i, token)
+            missing_cnt += 1
+        # print(i, token)
+print('Miss', missing_cnt, 'words')
 
 print('Saving files')
 # for tag in feature_tags:

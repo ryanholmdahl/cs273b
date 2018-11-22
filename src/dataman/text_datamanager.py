@@ -11,8 +11,8 @@ class TextDataManager:
         self.config = args
         self.max_len = args.max_len
         self.vocab = vocab.Vocab(logdir=constant.DATA_DIR)
-        self.vocab.load_glove(path=constant.GLOVE_DIR, d_embed=300)
-        self.vocab.get_glove_embed_vectors()
+        self.vocab.load_glove(path=constant.GLOVE_DIR, d_embed=args.glove_embedding_size)
+        self.vocab.load_medw2v(path=constant.DATA_DIR)
 
         with open(constant.TRAIN_IDS, "r") as fd:
             lines = fd.readlines()

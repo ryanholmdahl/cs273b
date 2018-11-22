@@ -10,6 +10,7 @@ import io
 import array
 import logging
 import pickle
+from gensim.models import KeyedVectors
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,8 @@ class Vocab:
         self.glove_itos = None
         self.glove_stoi = None
         self.glove_dim = None
-        self.embed_vectors = None
+        self.medw2v_model = None
+        self.medw2v_dim = None
         if logdir and os.path.isdir(logdir):
             with open(os.path.join(logdir, 'text_idx2word.pkl'), 'rb') as fd:
                 self.index2word = pickle.load(fd)
@@ -108,8 +110,8 @@ class Vocab:
 
         return seq_pack_tensor, idx_unsort
 
-    def load_glove(self, path, d_embed):
-        name = 'glove.6B.' + str(d_embed) + 'd.txt'
+    def load_glove(self, path, d_embed, size='6B'): # size can be '6B' or '840B'
+        name = 'glove.' + size + '.' + str(d_embed) + 'd.txt'
         name_pt = name + '.pt'
         path_pt = os.path.join(path, name_pt)
 
@@ -172,13 +174,41 @@ class Vocab:
         for i, token in self.index2word.items():
             if i < 3:  # Skip the first 3 words PAD EOS UNK
                 continue
-            # token = token.strip(''',.:;"()'/?<>[]{}\|!@#$%^&*''')
-            # print(i,token,(token in stoi))
             if token in self.glove_stoi:
                 vocab_tensors[i][:] = self.glove_tensors[self.glove_stoi[token]]
             else:
                 missing_cnt += 1
-                # print(i, token)
                 vocab_tensors[i][:] = unk_init(torch.Tensor(1, self.glove_dim))
-        self.embed_vectors = vocab_tensors.cpu().numpy()
-        print('Missing', missing_cnt, 'words')
+        #print('GloVe Miss', missing_cnt, 'words')
+        return vocab_tensors.cpu().numpy()
+
+    def load_medw2v(self, path):
+        name = 'wikipedia-pubmed-and-PMC-w2v.bin'
+        path = os.path.join(path, name)
+        print('Loading W2V from {}'.format(path))
+        self.medw2v_model = KeyedVectors.load_word2vec_format(path, binary=True)
+        self.medw2v_dim = self.medw2v_model['a'].shape[0]
+
+    def add_medw2v_to_vocab(self, path):
+        if self.medw2v_model is None:
+            self.load_medw2v(path)
+        # Add it into vocab
+        print('Adding PubMed words into vocab')
+        for word in self.medw2v_model.index2entity:
+            self.addWord(word)
+
+    def get_medw2v_embed_vectors(self, unk_init=torch.Tensor.zero_):
+        # Look up vectors for words in vocab in the pretrained vectors
+        vocab_tensors = torch.Tensor(self.n_words, self.medw2v_dim).zero_()
+        # print(vocab.index2word)
+        missing_cnt = 0
+        for i, token in self.index2word.items():
+            if i < 3:  # Skip the first 3 words PAD EOS UNK
+                continue
+            try:
+                vocab_tensors[i][:] = torch.Tensor(self.medw2v_model[token]).view(-1, self.medw2v_dim)
+            except KeyError:
+                missing_cnt += 1
+                vocab_tensors[i][:] = unk_init(torch.Tensor(1, self.glove_dim))
+        #print('PubMed-w2v Miss', missing_cnt, 'words')
+        return vocab_tensors.cpu().numpy()
