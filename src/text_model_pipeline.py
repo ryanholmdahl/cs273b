@@ -7,7 +7,7 @@ import sklearn
 import warnings
 import numpy as np
 
-from pytorch_classification.utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig
+from pytorch_classification.utils import Bar, AverageMeter
 
 
 def compute_metrics(logit, target):

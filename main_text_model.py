@@ -8,7 +8,7 @@ import logging
 import src.dataman.text_datamanager as datamanager
 import src.text_model_pipeline as pipeline
 import src.model.text_model as text_model
-import src.constant
+import src.constant as constant
 from src.utils import dotdict, load_checkpoint, save_checkpoint, change_learning_rate
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ args = dotdict({
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         checkpoint_dir = sys.argv[1]
-        print('loading from checkpoint in {}'.format(checkpoint_dir))
+        print('loading from checkpoint in {}'.format(constant.SAVE_DIR+checkpoint_dir))
         checkpoint = load_checkpoint(checkpoint=checkpoint_dir)
         args = checkpoint['args']
 

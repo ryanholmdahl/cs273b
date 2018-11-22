@@ -2,6 +2,7 @@
 import os
 import torch
 import shutil
+import src.constant as constant
 
 class dotdict(dict):
     def __getattr__(self, name):
@@ -12,7 +13,7 @@ class dotdict(dict):
 
 def save_checkpoint(state, is_best, checkpoint='checkpoint',
                     filename='checkpoint.pth.tar'):
-    filepath = os.path.join(checkpoint, filename)
+    filepath = os.path.join(constant.SAVE_DIR, checkpoint, filename)
     if not os.path.exists(checkpoint):
         print("Checkpoint Directory does not exist! Making directory {}"
               .format(checkpoint))
@@ -30,7 +31,7 @@ def save_checkpoint(state, is_best, checkpoint='checkpoint',
 def load_checkpoint(checkpoint,
                     filename='checkpoint.pth.tar'):
     # https://github.com/pytorch/examples/blob/master/imagenet/main.py#L98
-    filepath = os.path.join(checkpoint, filename)
+    filepath = os.path.join(constant.SAVE_DIR, checkpoint, filename)
     if not os.path.exists(filepath):
         raise("No best model in path {}".format(checkpoint))
     checkpoint = torch.load(filepath)

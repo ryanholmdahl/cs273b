@@ -6,6 +6,10 @@ if 'linux' in sys.platform:
     DATA_DIR = os.path.abspath('/data/data')
 else:
     DATA_DIR = os.path.join(ROOT_PATH, 'data')
+if 'linux' in sys.platform:
+    SAVE_DIR = os.path.abspath('/data/save')
+else:
+    SAVE_DIR = os.path.join(ROOT_PATH, 'save')
 GLOVE_DIR = os.path.join(DATA_DIR, 'glove')
 
 TRAIN_IDS = os.path.join(DATA_DIR, 'train_dbids.txt')
