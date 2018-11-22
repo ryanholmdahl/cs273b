@@ -13,7 +13,8 @@ class dotdict(dict):
 
 def save_checkpoint(state, is_best, checkpoint='checkpoint',
                     filename='checkpoint.pth.tar'):
-    filepath = os.path.join(constant.SAVE_DIR, checkpoint, filename)
+    checkpoint = os.path.join(constant.SAVE_DIR, checkpoint)
+    filepath = os.path.join(checkpoint, filename)
     if not os.path.exists(checkpoint):
         print("Checkpoint Directory does not exist! Making directory {}"
               .format(checkpoint))
