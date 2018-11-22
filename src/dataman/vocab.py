@@ -183,7 +183,8 @@ class Vocab:
         return vocab_tensors.cpu().numpy()
 
     def load_medw2v(self, path):
-        name = 'wikipedia-pubmed-and-PMC-w2v.bin'
+        #name = 'wikipedia-pubmed-and-PMC-w2v.bin'
+        name = 'PubMed-w2v.bin'
         path = os.path.join(path, name)
         print('Loading W2V from {}'.format(path))
         self.medw2v_model = KeyedVectors.load_word2vec_format(path, binary=True)

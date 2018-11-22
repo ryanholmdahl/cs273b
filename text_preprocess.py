@@ -147,7 +147,7 @@ for i, token in word_vocab.index2word.items():
         try:
             word_vocab.medw2v_model[token]
         except KeyError:
-            print(i, token)
+            print(i, token.encode('utf-8'))
             missing_cnt += 1
         # print(i, token)
 print('Miss', missing_cnt, 'words')
