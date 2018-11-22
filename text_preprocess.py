@@ -101,12 +101,17 @@ print('Parsing sentences')
 for tag, feature_dict in train_feature_dicts.items():
     for dbid, sent in feature_dict.items():
         word_vocab.addSentence(sent)
-        #print(sent)
+# a little bit cheaty to avoid add whole GloVe and PubMed into vocab
+for tag, feature_dict in test_feature_dicts.items():
+    for dbid, sent in feature_dict.items():
+        word_vocab.addSentence(sent)
 print("Vocabulary size:",word_vocab.n_words)
-word_vocab.add_glove_to_vocab(constant.GLOVE_DIR, 300)
-print("Vocabulary size:",word_vocab.n_words)
-word_vocab.add_medw2v_to_vocab(constant.DATA_DIR)
-print("Vocabulary size:",word_vocab.n_words)
+word_vocab.load_glove(constant.GLOVE_DIR, 300)
+word_vocab.load_medw2v(constant.DATA_DIR)
+# word_vocab.add_glove_to_vocab(constant.GLOVE_DIR, 300)
+# print("Vocabulary size:",word_vocab.n_words)
+# word_vocab.add_medw2v_to_vocab(constant.DATA_DIR)
+# print("Vocabulary size:",word_vocab.n_words)
 
 print('Numberizing sentences')
 maxlen = 0
@@ -147,7 +152,7 @@ for i, token in word_vocab.index2word.items():
         try:
             word_vocab.medw2v_model[token]
         except KeyError:
-            print(i, token.encode('utf-8'))
+            # print(i, token.encode('utf-8'))
             missing_cnt += 1
         # print(i, token)
 print('Miss', missing_cnt, 'words')
