@@ -9,7 +9,7 @@ import src.dataman.text_datamanager as datamanager
 import src.text_model_pipeline as pipeline
 import src.model.text_model as text_model
 import src.constant as constant
-from src.utils import dotdict, load_checkpoint, save_checkpoint, change_learning_rate
+from src.utils import dotdict, load_checkpoint, save_checkpoint, change_learning_rate, l2_normalize
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +56,8 @@ if __name__ == "__main__":
     args.n_embed = dm.vocab.n_words
     model = text_model.TextClassifier(config=args)
 
-    model.glove_embed.weight.data = torch.Tensor(dm.vocab.get_glove_embed_vectors())
-    model.other_embed.weight.data = torch.Tensor(dm.vocab.get_medw2v_embed_vectors())
+    model.glove_embed.weight.data = l2_normalize(torch.Tensor(dm.vocab.get_glove_embed_vectors()))
+    model.other_embed.weight.data = l2_normalize(torch.Tensor(dm.vocab.get_medw2v_embed_vectors()))
 
     if args.cuda:
         model.cuda()

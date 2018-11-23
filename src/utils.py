@@ -49,3 +49,9 @@ def adjust_learning_rate(optimizer, epoch, args, state):
 def change_learning_rate(optimizer, lr):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
+
+
+def l2_normalize(x):
+    x_norm = torch.sqrt(torch.sum(x**2, dim=0, keepdim=True))
+    x_normed = x / x_norm
+    return x_normed
