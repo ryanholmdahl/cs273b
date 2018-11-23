@@ -18,26 +18,26 @@ args = dotdict({
     'train_num_drugs': 800,
     'lr': 0.001,
     'learning_rate_decay': 0.95,
-    'weight_decay': 5e-5,
+    'weight_decay': 5e-4,
     'balance_loss': True,
     'max_len': 300,
-    'epochs': 10,
-    'batch_size': 500,
-    'batches_per_epoch': 10,
+    'epochs': 50,
+    'batch_size': 100,
+    'batches_per_epoch': 100,
     'dev_batch_size': 121,
     'dev_batches_per_epoch': 1,
     'test_batch_size': 154,
     'test_batches_per_epoch': 1,
-    'hidden_size': 32,
+    'hidden_size': 10,
     'lstm_layer': 1,
     'bidirectional': False,
-    'glove_embedding_size': 300,
+    'glove_embedding_size': 50,
     'other_embedding_size': 200,
-    'embedding_size': 300+200,
+    'embedding_size': 50+200,
     'fix_emb_glove': True,
     'fix_emb_other': True,
-    'dp_ratio': 0.2,
-    'mlp_hidden_size_list': [32, 32],
+    'dp_ratio': 0.3,
+    'mlp_hidden_size_list': [32, 16],
     'cuda': torch.cuda.is_available(),
 })
 
@@ -55,11 +55,12 @@ if __name__ == "__main__":
     dm = datamanager.TextDataManager(args)
     args.n_embed = dm.vocab.n_words
     model = text_model.TextClassifier(config=args)
-    if args.cuda:
-        model.cuda()
 
     model.glove_embed.weight.data = torch.Tensor(dm.vocab.get_glove_embed_vectors())
     model.other_embed.weight.data = torch.Tensor(dm.vocab.get_medw2v_embed_vectors())
+
+    if args.cuda:
+        model.cuda()
 
     # Numbers of parameters
     print("number of trainable parameters found {}".format(sum(
@@ -67,6 +68,7 @@ if __name__ == "__main__":
         if param.requires_grad)))
 
     pos_weight = torch.sum(1-dm.train_labels, dim=0)/torch.sum(dm.train_labels, dim=0)
+    pos_weight = torch.clamp(pos_weight, min=0.1, max=10)
     if state['balance_loss']:
         criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     else:
