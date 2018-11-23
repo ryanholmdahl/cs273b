@@ -44,7 +44,7 @@ def evaluate(val_data, val_label, lstm_model, criterion):
 #        print("lstm_out:{}".format(lstm_out))
 #        print("val_label:{}".format(val_label))
         loss = criterion(lstm_out, val_label)
-        print(loss)
+#        print(loss)
         acc = compute_acc(val_label, pred_label)
     return loss, acc
 
@@ -67,7 +67,6 @@ def trainIter(lstm_model, train_goterms, gowords_vocab, goterms_vocab, n_epochs,
     val_data = [train_gowords[i] for i in val_idx]
     val_label = [train_goterms[i] for i in val_idx]
     
-    no_up = 0
     best_val_acc = 0.0
     plot_losses_train = []
     plot_losses_val = []
@@ -82,7 +81,7 @@ def trainIter(lstm_model, train_goterms, gowords_vocab, goterms_vocab, n_epochs,
             label_tensor = prepare_label(goterm, goterms_vocab)
             
             loss = train(input_tensor, label_tensor, lstm_model, lstm_optimizer, criterion)
-            print("Current loss:{}".format(loss))
+#            print("Current loss:{}".format(loss))
             train_loss_total += loss
         avg_train_loss = train_loss_total / len(train_data)
         plot_losses_train.append(avg_train_loss)
@@ -106,14 +105,9 @@ def trainIter(lstm_model, train_goterms, gowords_vocab, goterms_vocab, n_epochs,
             os.system('rm ' + save_path + 'bestModel_valAcc*.model')
             print('New Best Val Acc!')
             torch.save(lstm_model.state_dict(), save_path + 'bestModel_valAcc' + str(int(best_val_acc*10000)) + '.model')
-            no_up = 0
-        else:
-            no_up += 1
-            if no_up >= 10:
-                break
                 
               
-    plotTrainValLoss(plot_losses_train, plot_losses_val, save_path)
+#    plotTrainValLoss(plot_losses_train, plot_losses_val, save_path)
     
     return lstm_model, best_val_acc
         

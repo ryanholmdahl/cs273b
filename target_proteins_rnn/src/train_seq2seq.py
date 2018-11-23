@@ -78,7 +78,6 @@ def trainIters(seq, letter_to_idx, encoder, decoder, n_iters):
     lowest_hamm_dist = 0.0
     plot_val_losses = []
     plot_train_losses = []
-    no_up = 0
     for epoch in range(n_iters):
         print("Current epoch:{}".format(epoch))
         
@@ -119,13 +118,8 @@ def trainIters(seq, letter_to_idx, encoder, decoder, n_iters):
             os.system('rm ' + hparams.SAVE_PATH + 'bestModel_valDist*.model')
             print('New lowest validation dist!')
             torch.save(encoder.state_dict(), hparams.SAVE_PATH + 'bestModel_valDist' + str(int(lowest_hamm_dist*10000)) + '.model')
-            no_up = 0
-        else:
-            no_up += 1
-            if no_up >= 10:
-                break
                 
-    plotTrainValLoss(plot_train_losses, plot_val_losses, hparams.SAVE_PATH)
+#    plotTrainValLoss(plot_train_losses, plot_val_losses, hparams.SAVE_PATH)
 
     return encoder, decoder, lowest_hamm_dist
 
