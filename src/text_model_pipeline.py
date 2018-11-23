@@ -114,7 +114,7 @@ def train(model, dm, loss_criterion, optimizer, args):
         # plot progress
         bar.suffix = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s' \
                      '| Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc:.3f} ' \
-                     '| P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP: {mAP:.3f}|' \
+                     '| P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP mic: {mAP:.3f}|' \
             .format(
             batch=batch_idx,
             size=args.batches_per_epoch,
@@ -220,7 +220,7 @@ def test(model, dm, loss_criterion, args, is_dev=True):
         # plot progress
         bar.suffix = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s' \
                      '| Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc:.3f} ' \
-                     '| P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP: {mAP:.3f}|' \
+                     '| P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP mic: {mAP:.3f}| mAP mac: {mAP2:.3f}|' \
             .format(
             batch=batch_idx,
             size=args.batches_per_epoch,
@@ -234,6 +234,7 @@ def test(model, dm, loss_criterion, args, is_dev=True):
             r=r_micro.avg,
             f=f_micro.avg,
             mAP=mAP_micro.avg,
+            mAP2=mAP_macro.avg,
         )
         bar.next()
     bar.finish()

@@ -17,9 +17,9 @@ args = dotdict({
     'n_label': 1121,  # 3 classes
     'train_num_drugs': 800,
     'lr': 0.001,
-    'learning_rate_decay': 0.95,
+    'learning_rate_decay': 0.9,
     'weight_decay': 5e-4,
-    'balance_loss': True,
+    'balance_loss': False,
     'max_len': 300,
     'epochs': 50,
     'batch_size': 100,
@@ -28,7 +28,7 @@ args = dotdict({
     'dev_batches_per_epoch': 1,
     'test_batch_size': 154,
     'test_batches_per_epoch': 1,
-    'hidden_size': 10,
+    'hidden_size': 32,
     'lstm_layer': 1,
     'bidirectional': False,
     'glove_embedding_size': 50,
@@ -37,14 +37,14 @@ args = dotdict({
     'fix_emb_glove': True,
     'fix_emb_other': True,
     'dp_ratio': 0.3,
-    'mlp_hidden_size_list': [32, 16],
+    'mlp_hidden_size_list': [32, 32],
     'cuda': torch.cuda.is_available(),
 })
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         checkpoint_dir = sys.argv[1]
-        print('loading from checkpoint in {}'.format(constant.SAVE_DIR+checkpoint_dir))
+        print('loading from checkpoint in {}'.format(constant.SAVE_DIR+'/'+checkpoint_dir))
         checkpoint = load_checkpoint(checkpoint=checkpoint_dir)
         args = checkpoint['args']
 
@@ -89,11 +89,11 @@ if __name__ == "__main__":
                 [param for param in model.parameters() if param.requires_grad],
                 lr=state['lr'], weight_decay=state['weight_decay'])
         optimizer.load_state_dict(checkpoint['optimizer'])
-        state['lr'] = checkpoint['lr']
         best_dev_acc = checkpoint['acc']
+        state['lr'] = checkpoint['lr']
 
     for epoch in range(args.epochs):
-        print('lr {}'.format(state['lr']))
+        print('Epoch {} lr {}'.format(epoch, state['lr']))
         logger.info('\nEpoch: [{} | {}] LR: {}'.format(
             epoch + 1, args.epochs, state['lr']))
 

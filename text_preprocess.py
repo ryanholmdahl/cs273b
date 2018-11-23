@@ -133,8 +133,8 @@ for tag, feature_dict in test_feature_dicts.items():
             maxlen = len(token_dicts[tag][dbid])
         len_bin[int(len(token_dicts[tag][dbid])/100)] += 1
         #print(token_dicts[tag][dbid])
-print(maxlen)
-print(len_bin)
+print('Max Length:', maxlen)
+print('Length of sentences (bin size=100):', len_bin)
 
 # print('Getting embedding vectors')
 # with open(os.path.join(constant.DATA_DIR,'embed_vectors.pkl'), 'wb') as fd:
