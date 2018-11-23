@@ -55,6 +55,8 @@ if __name__ == "__main__":
     dm = datamanager.TextDataManager(args)
     args.n_embed = dm.vocab.n_words
     model = text_model.TextClassifier(config=args)
+    if args.cuda:
+        model.cuda()
 
     model.glove_embed.weight.data = torch.Tensor(dm.vocab.get_glove_embed_vectors())
     model.other_embed.weight.data = torch.Tensor(dm.vocab.get_medw2v_embed_vectors())
@@ -65,7 +67,6 @@ if __name__ == "__main__":
         if param.requires_grad)))
 
     pos_weight = torch.sum(1-dm.train_labels, dim=0)/torch.sum(dm.train_labels, dim=0)
-
     if state['balance_loss']:
         criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     else:
@@ -80,6 +81,11 @@ if __name__ == "__main__":
     # load trained model from checkpoint
     if len(sys.argv) > 1:
         model.load_state_dict(checkpoint['state_dict'])
+        if args.cuda:
+            model.cuda()
+            optimizer = optim.Adam(
+                [param for param in model.parameters() if param.requires_grad],
+                lr=state['lr'], weight_decay=state['weight_decay'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         state['lr'] = checkpoint['lr']
         best_dev_acc = checkpoint['acc']
@@ -89,8 +95,6 @@ if __name__ == "__main__":
         logger.info('\nEpoch: [{} | {}] LR: {}'.format(
             epoch + 1, args.epochs, state['lr']))
 
-        if args.cuda:
-            model.cuda()
         train_loss, train_acc = pipeline.train(
             model=model,
             dm=dm,
