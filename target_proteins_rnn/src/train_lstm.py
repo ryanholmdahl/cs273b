@@ -17,7 +17,7 @@ def train(train_data, train_label, lstm_model, lstm_optimizer, criterion):
     lstm_model.hidden = lstm_model.init_hidden()
     lstm_model.zero_grad()
             
-    lstm_out = lstm_model(train_data)
+    lstm_out, last_hidden = lstm_model(train_data)
     loss = criterion(lstm_out, train_label)    
     
     loss.backward()
@@ -39,10 +39,12 @@ def compute_acc(y_true, y_pred):
 def evaluate(val_data, val_label, lstm_model, criterion):
     with torch.no_grad():
         lstm_model.hidden = lstm_model.init_hidden()
-        lstm_out = lstm_model(val_data)
+        lstm_out, last_hidden = lstm_model(val_data)
         pred_label = lstm_out.data.max(1)[1]
-
+#        print("lstm_out:{}".format(lstm_out))
+#        print("val_label:{}".format(val_label))
         loss = criterion(lstm_out, val_label)
+        print(loss)
         acc = compute_acc(val_label, pred_label)
     return loss, acc
 
@@ -65,6 +67,7 @@ def trainIter(lstm_model, train_goterms, gowords_vocab, goterms_vocab, n_epochs,
     val_data = [train_gowords[i] for i in val_idx]
     val_label = [train_goterms[i] for i in val_idx]
     
+    no_up = 0
     best_val_acc = 0.0
     plot_losses_train = []
     plot_losses_val = []
@@ -79,7 +82,7 @@ def trainIter(lstm_model, train_goterms, gowords_vocab, goterms_vocab, n_epochs,
             label_tensor = prepare_label(goterm, goterms_vocab)
             
             loss = train(input_tensor, label_tensor, lstm_model, lstm_optimizer, criterion)
-            #print("Current loss:{}".format(loss))
+            print("Current loss:{}".format(loss))
             train_loss_total += loss
         avg_train_loss = train_loss_total / len(train_data)
         plot_losses_train.append(avg_train_loss)
@@ -103,9 +106,14 @@ def trainIter(lstm_model, train_goterms, gowords_vocab, goterms_vocab, n_epochs,
             os.system('rm ' + save_path + 'bestModel_valAcc*.model')
             print('New Best Val Acc!')
             torch.save(lstm_model.state_dict(), save_path + 'bestModel_valAcc' + str(int(best_val_acc*10000)) + '.model')
+            no_up = 0
+        else:
+            no_up += 1
+            if no_up >= 10:
+                break
                 
               
-#    plotTrainValLoss(plot_losses_train, plot_losses_val, save_path)
+    plotTrainValLoss(plot_losses_train, plot_losses_val, save_path)
     
     return lstm_model, best_val_acc
         
@@ -130,11 +138,12 @@ def get_trained_embeds(goterms_dict, gowords_to_idx, lstm_model):
                         goterms = goterms + curr_go[i]
                     input_gowords = go2words(goterms)
                     input_tensor = prepare_seq(input_gowords, gowords_to_idx)
-                    lstm_model(input_tensor)
-                    last_hidden = lstm_model.hidden[-1][0][0].view(1,-1)
+                    output, last_hidden = lstm_model(input_tensor)
+                    last_hidden = last_hidden[0][0].view(1,-1)
+#                    last_hidden = lstm_model.hidden[-1][0][0].view(1,-1)
                     all_embeds = torch.cat((all_embeds, last_hidden), dim = 0)
-                aggreg_embeds = aggregateSeq(all_embeds, 'MEAN', keep_dim=False)
-            
+#                aggreg_embeds = aggregateSeq(all_embeds, 'MEAN', keep_dim=False)
+                aggreg_embeds = lstm_model.aggregate(all_embeds, 'MEAN', keep_dim=False)
             embeds_trained.append(aggreg_embeds)
             
         embeds_trained = torch.stack(embeds_trained)

@@ -16,7 +16,7 @@ torch.cuda.manual_seed_all
 def main(train_goterms_1d, train_goterms, gowords_vocab, goterms_vocab):
     
     lstm_model = lstmClassifier(hparams.EMBEDDING_DIM, hparams.HIDDEN_SIZE, 
-                                len(gowords_vocab), len(goterms_vocab)).to(device)
+                                len(gowords_vocab), len(goterms_vocab))
             
     lstm_trained, avg_val_acc = trainIter(lstm_model, train_goterms_1d, gowords_vocab, goterms_vocab, 
                                           hparams.N_EPOCHS, hparams.SAVE_PATH_GO)

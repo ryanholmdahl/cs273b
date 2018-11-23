@@ -17,7 +17,7 @@ def decode_new_seq(input_tensor, encoder, decoder, letter_to_idx, criterion, max
     
     loss = 0
     for ei in range(input_length):
-        encoder_output = encoder(torch.tensor([input_tensor[ei]], device=device))
+        encoder_output, last_hidden = encoder(torch.tensor([input_tensor[ei]], device=device))
         encoder_outputs[ei] = encoder_output[0,0]
     
     decoder_input = torch.tensor([[hparams.SOS_token]], device=device)

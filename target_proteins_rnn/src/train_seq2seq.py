@@ -29,7 +29,7 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optim,
     loss = 0
     
     for ei in range(input_length):
-        encoder_output = encoder(torch.tensor([input_tensor[ei]], device=device))
+        encoder_output, last_hidden = encoder(torch.tensor([input_tensor[ei]], device=device))
         encoder_outputs[ei] = encoder_output[0,0]
     
     decoder_input = torch.tensor([[hparams.SOS_token]], device=device)
@@ -78,6 +78,7 @@ def trainIters(seq, letter_to_idx, encoder, decoder, n_iters):
     lowest_hamm_dist = 0.0
     plot_val_losses = []
     plot_train_losses = []
+    no_up = 0
     for epoch in range(n_iters):
         print("Current epoch:{}".format(epoch))
         
@@ -118,9 +119,13 @@ def trainIters(seq, letter_to_idx, encoder, decoder, n_iters):
             os.system('rm ' + hparams.SAVE_PATH + 'bestModel_valDist*.model')
             print('New lowest validation dist!')
             torch.save(encoder.state_dict(), hparams.SAVE_PATH + 'bestModel_valDist' + str(int(lowest_hamm_dist*10000)) + '.model')
-            
+            no_up = 0
+        else:
+            no_up += 1
+            if no_up >= 10:
+                break
                 
-#    plotTrainValLoss(plot_train_losses, plot_val_losses, hparams.SAVE_PATH)
+    plotTrainValLoss(plot_train_losses, plot_val_losses, hparams.SAVE_PATH)
 
     return encoder, decoder, lowest_hamm_dist
 
@@ -142,9 +147,10 @@ def get_trained_embeds(train_seq, letter_to_idx, encoder):
                     input_seq_letters = seq2letter(curr_seq)
                     input_tensor = prepare_seq(input_seq_letters, letter_to_idx)
                     for ei in range(input_tensor.size(0)):
-                        encoder(torch.tensor([input_tensor[ei]], device=device))
-                    all_embeds = torch.cat((all_embeds, encoder.hidden[-1]), dim = 0)
-                aggreg_embeds = aggregateSeq(all_embeds, 'MEAN', keep_dim=False)
+                        output, last_hidden = encoder(torch.tensor([input_tensor[ei]], device=device))
+                    all_embeds = torch.cat((all_embeds, last_hidden), dim = 0)
+#                aggreg_embeds = aggregateSeq(all_embeds, 'MEAN', keep_dim=False)
+                aggreg_embeds = encoder.aggregate(all_embeds, 'MEAN', keep_dim=False)
             
             embeds_trained.append(list(aggreg_embeds))
         

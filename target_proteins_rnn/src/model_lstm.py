@@ -17,17 +17,25 @@ class lstmClassifier(nn.Module):
         
     def init_hidden(self):
         return (torch.zeros(1, 1, self.hidden_dim, device=device),
-               torch.zeros(1, 1, self.hidden_dim, device=device))
-        
+                torch.zeros(1, 1, self.hidden_dim, device=device))
+         
     def forward(self, sentence):
         embeds = self.word_embeddings(sentence)
         x = embeds.view(len(sentence), 1, -1)
         lstm_out, self.hidden = self.lstm(x, self.hidden)
         y  = self.hidden2label(lstm_out[-1])
         log_probs = F.log_softmax(y, dim=1)
-        return log_probs
+        last_hidden = self.hidden[-1]
+        return log_probs, last_hidden
     
-    
+    def aggregate(self, last_hiddens, aggregate='MEAN', keep_dim=False):
+        if aggregate == 'MAX':
+            maxes, idxs = torch.max(last_hiddens, 0, keepdim=keep_dim)
+            return maxes
+        elif aggregate == 'SUM':  
+            return torch.sum(last_hiddens, 0, keepdim=keep_dim)
+        else:
+            return torch.mean(last_hiddens, 0, keepdim=keep_dim)
     
     
     

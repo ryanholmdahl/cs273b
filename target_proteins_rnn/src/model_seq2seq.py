@@ -29,7 +29,18 @@ class EncoderRNN(nn.Module):
         embedded = self.word_embeddings(sequence).view(1,1,-1)
         output = embedded
         output, self.hidden = self.gru(output, self.hidden)
-        return output
+        last_hidden = self.hidden[-1]
+        return output, last_hidden
+            
+    def aggregate(self, last_hiddens, aggregate='MEAN', keep_dim=False):
+        if aggregate == 'MAX':
+            maxes, idxs = torch.max(last_hiddens, 0, keepdim=keep_dim)
+            return maxes
+        elif aggregate == 'SUM':  
+            return torch.sum(last_hiddens, 0, keepdim=keep_dim)
+        else:
+            return torch.mean(last_hiddens, 0, keepdim=keep_dim)
+        
     
 class DecoderRNN(nn.Module):
     def __init__(self, hidden_size, output_size):
