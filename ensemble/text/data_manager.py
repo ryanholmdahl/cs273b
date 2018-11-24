@@ -110,6 +110,7 @@ class TextDataManager(DataManager):
                 ind_idx_unsort,
                 act_packed_tensor,
                 act_idx_unsort,
+                len(dbids),
                 self.use_cuda)
 
     def sample_train_batch(self, dbids):
