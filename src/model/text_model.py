@@ -267,7 +267,6 @@ class TextEmbeddingModel(nn.Module):
         #                            .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
 
         scores = torch.cat([des_maxpool, ind_maxpool, act_maxpool], dim=1)
-        print(scores)
 
         # scores = self.base(torch.cat([
         #     des_maxpool,
