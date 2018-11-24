@@ -40,15 +40,6 @@ class TextDataManager(DataManager):
 
         self.embed1 = None
         self.embed2 = None
-        self.train_dbid_to_idx = {
-            dbid: i for i, dbid in enumerate(self.train_dbids)
-        }
-        self.dev_dbid_to_idx = {
-            dbid: i for i, dbid in enumerate(self.dev_dbids)
-        }
-        self.test_dbid_to_idx = {
-            dbid: i for i, dbid in enumerate(self.test_dbids)
-        }
         print('TextDataManager initialized.')
 
     def connect_to_submodule(self, submodule):

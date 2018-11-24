@@ -36,6 +36,16 @@ class EnsembleDataManager:
             lines = fd.readlines()
             self.test_dbids = [line.strip('\n') for line in lines]
 
+        self.train_dbid_to_idx = {
+            dbid: i for i, dbid in enumerate(self.train_dbids)
+        }
+        self.dev_dbid_to_idx = {
+            dbid: i for i, dbid in enumerate(self.dev_dbids)
+        }
+        self.test_dbid_to_idx = {
+            dbid: i for i, dbid in enumerate(self.test_dbids)
+        }
+
         with open(constant.TRAIN_LABELS, "rb") as fd:
             train_label_dict = pickle.load(fd)
         with open(constant.TEST_LABELS, "rb") as fd:
@@ -56,12 +66,24 @@ class EnsembleDataManager:
 
     def sample_train_batch(self, batch_size):
         dbids = random.sample(self.train_dbids, batch_size)
-        return [submodule_manager.sample_train_batch(dbids) for submodule_manager in self.submodule_managers]
+        idx = [self.train_dbid_to_idx[dbid] for dbid in dbids]
+        return (
+            [submodule_manager.sample_train_batch(dbids) for submodule_manager in self.submodule_managers],
+            self.train_labels[idx],
+        )
 
     def sample_dev_batch(self, batch_size):
         dbids = random.sample(self.dev_dbids, batch_size)
-        return [submodule_manager.sample_dev_batch(dbids) for submodule_manager in self.submodule_managers]
+        idx = [self.dev_dbid_to_idx[dbid] for dbid in dbids]
+        return (
+            [submodule_manager.sample_dev_batch(dbids) for submodule_manager in self.submodule_managers],
+            self.dev_labels[idx],
+        )
 
     def sample_test_batch(self, batch_size):
         dbids = random.sample(self.test_dbids, batch_size)
-        return [submodule_manager.sample_test_batch(dbids) for submodule_manager in self.submodule_managers]
+        idx = [self.test_dbid_to_idx[dbid] for dbid in dbids]
+        return (
+            [submodule_manager.sample_test_batch(dbids) for submodule_manager in self.submodule_managers],
+            self.test_labels[idx],
+        )
