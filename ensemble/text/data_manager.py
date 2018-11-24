@@ -54,6 +54,8 @@ class TextDataManager(DataManager):
         r_tensor = torch.LongTensor(data_size, self.max_len)
         r_tensor.fill_(vocab.PAD_token)
         slen_tensor = torch.LongTensor(data_size,)
+        if self.use_cuda:
+            slen_tensor = slen_tensor.cuda()
 
         b = 0
         for sent_wordids in sents_num:
