@@ -63,7 +63,7 @@ def _train(data_manager, model):
         for i in range(0, len(data_manager.train_dbids), 64):
             train_inputs, targets = data_manager.sample_train_batch(64)
             logits = model.forward(train_inputs)
-            loss = criterion(logits, targets)
+            loss = criterion(logits.reshape(-1), targets.reshape(-1))
             losses.update(loss.item(), 64)
             loss.backward()
             optimizer.step()
