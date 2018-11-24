@@ -10,6 +10,15 @@ class DataManager:
         self.dev_dbids = dev_dbids
         self.test_dbids = test_dbids
         self.use_cuda = use_cuda
+        self.train_dbid_to_idx = {
+            dbid: i for i, dbid in enumerate(self.train_dbids)
+        }
+        self.dev_dbid_to_idx = {
+            dbid: i for i, dbid in enumerate(self.dev_dbids)
+        }
+        self.test_dbid_to_idx = {
+            dbid: i for i, dbid in enumerate(self.test_dbids)
+        }
 
     def connect_to_submodule(self, submodule):
         raise NotImplementedError
