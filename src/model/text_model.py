@@ -16,11 +16,11 @@ class RNNEncoder(nn.Module):
             dropout=config.dp_ratio,
             bidirectional=config.bidirectional)
 
-    def initHidden(self, cuda):
+    def initHidden(self, batch_size, cuda):
         if self.config.bidirectional:
-            state_shape = (2, 1, self.config.hidden_size)
+            state_shape = (2, batch_size, self.config.hidden_size)
         else:
-            state_shape = (1, 1, self.config.hidden_size)
+            state_shape = (1, batch_size, self.config.hidden_size)
         if cuda:
             h0 = c0 = torch.FloatTensor(*state_shape).fill_(0)
         else:
@@ -211,7 +211,8 @@ class TextEmbeddingModel(nn.Module):
         act_unsort,
         cuda
     ):
-        encoder_init_hidden = self.encoder.initHidden(cuda)
+        print(des_embed.shape)
+        encoder_init_hidden = self.encoder.initHidden(des_embed.shape[0], cuda)
         des_rnn = self.encoder(
                 inputs=des_embed,
                 hidden=encoder_init_hidden,
