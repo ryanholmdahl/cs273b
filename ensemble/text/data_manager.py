@@ -2,6 +2,7 @@ import pickle
 import random
 import os
 import torch
+from src.utils import l2_normalize
 
 from ensemble.data_manager import DataManager
 
@@ -51,6 +52,8 @@ class TextDataManager(DataManager):
         print('TextDataManager initialized.')
 
     def connect_to_submodule(self, submodule):
+        submodule.glove_embed.weight.data = l2_normalize(torch.Tensor(self.vocab.get_glove_embed_vectors()))
+        submodule.other_embed.weight.data = l2_normalize(torch.Tensor(self.vocab.get_medw2v_embed_vectors()))
         self.embed1 = submodule.glove_embed
         self.embed2 = submodule.other_embed
 
