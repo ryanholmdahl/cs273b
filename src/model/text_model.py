@@ -16,13 +16,16 @@ class RNNEncoder(nn.Module):
             dropout=config.dp_ratio,
             bidirectional=config.bidirectional)
 
-    def initHidden(self, batch_size):
+    def initHidden(self, batch_size, cuda):
         if self.config.bidirectional:
             state_shape = 2, batch_size, self.config.hidden_size
         else:
             state_shape = 1, batch_size, self.config.hidden_size
-        h0 = c0 = torch.zeros(state_shape)
-        return (h0, c0)
+        if cuda:
+            h0 = c0 = torch.cuda.zeros(state_shape)
+        else:
+            h0 = c0 = torch.zeros(state_shape)
+        return h0, c0
 
     def forward(self, inputs, hidden, batch_size):
         outputs, (ht, ct) = self.rnn(inputs, hidden)

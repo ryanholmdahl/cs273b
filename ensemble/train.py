@@ -31,7 +31,11 @@ def _load_submodules(data_manager):
     return load_text_models(data_manager.submodule_managers[0].vocab.n_words)
 
 
-def _train(model):
+def _train(data_manager, model):
+    for i in range(10):
+        train_inputs = data_manager.sample_train_batch(64)
+        class_scores = model.forward(train_inputs)
+        print(class_scores)
     return model
 
 
@@ -45,7 +49,7 @@ def _main():
     model = EnsembleModel(32 * 3, hiddens, 1121, submodules)
     if cuda:
         model = model.cuda()
-    _train(model)
+    _train(data_manager, model)
 
 
 if __name__ == '__main__':
