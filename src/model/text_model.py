@@ -238,12 +238,15 @@ class TextEmbeddingModel(nn.Module):
         # des_maxpool = torch.max(des_rnn, 0)[0]  # [batch_size, embed_size]
         # ind_maxpool = torch.max(ind_rnn, 0)[0]
         # act_maxpool = torch.max(act_rnn, 0)[0]
-        print(des_unsort_lens)
-        des_maxpool = torch.gather(des_rnn, 0, (des_unsort_lens - 1).view(1, -1).unsqueeze(2).repeat(1, 1,
-                                                                                                     self.config.hidden_size))
-        print(des_maxpool.shape)
-        ind_maxpool = ind_rnn[-1, :, :]
-        act_maxpool = act_rnn[-1, :, :]
+        des_maxpool = torch.gather(des_rnn, 0,
+                                   (des_unsort_lens - 1).view(1, -1)
+                                   .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
+        ind_maxpool = torch.gather(des_rnn, 0,
+                                   (ind_unsort_lens - 1).view(1, -1)
+                                   .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
+        act_maxpool = torch.gather(des_rnn, 0,
+                                   (act_unsort_lens - 1).view(1, -1)
+                                   .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
 
         scores = torch.cat([des_maxpool, ind_maxpool, act_maxpool], dim=1)
         print(scores)
