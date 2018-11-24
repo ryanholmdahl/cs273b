@@ -60,11 +60,11 @@ def _train(data_manager, model):
     print(len(list(model.parameters())))
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     for epoch in range(100):
-        for i in range(0, len(data_manager.train_dbids), 64):
-            train_inputs, targets = data_manager.sample_train_batch(64)
+        for i in range(0, len(data_manager.train_dbids), 8):
+            train_inputs, targets = data_manager.sample_train_batch(8)
             logits = model.forward(train_inputs)
             loss = criterion(logits.reshape(-1), targets.reshape(-1))
-            losses.update(loss.item(), 64)
+            losses.update(loss.item(), 8)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()

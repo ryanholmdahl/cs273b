@@ -203,9 +203,10 @@ class TextEmbeddingModel(nn.Module):
 
     def buh(self, lens):
         lens = lens - 1
-        lens = lens.view(-1, 1)
-        lens = lens.unsqueeze(2)
+        lens = lens.reshape(-1, 1, 1)
         lens = lens.repeat(1, 1, self.config.hidden_size)
+        print(lens.shape)
+        print(lens)
         lens = lens.cuda()
         return lens
 
