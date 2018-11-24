@@ -241,10 +241,10 @@ class TextEmbeddingModel(nn.Module):
         des_maxpool = torch.gather(des_rnn, 0,
                                    (des_unsort_lens - 1).view(1, -1)
                                    .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
-        ind_maxpool = torch.gather(des_rnn, 0,
+        ind_maxpool = torch.gather(ind_rnn, 0,
                                    (ind_unsort_lens - 1).view(1, -1)
                                    .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
-        act_maxpool = torch.gather(des_rnn, 0,
+        act_maxpool = torch.gather(act_rnn, 0,
                                    (act_unsort_lens - 1).view(1, -1)
                                    .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
 
