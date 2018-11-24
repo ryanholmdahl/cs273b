@@ -5,6 +5,9 @@ from ensemble.text.data_manager import TextDataManager
 import argparse
 import torch.nn as nn
 import torch.optim as optim
+from src.text_model_pipeline import compute_metrics
+
+from pytorch_classification.utils import AverageMeter
 
 
 # TODO: fix rel paths
@@ -34,16 +37,55 @@ def _load_submodules(data_manager):
 
 
 def _train(data_manager, model):
+    batch_time = AverageMeter()
+    data_time = AverageMeter()
+    losses = AverageMeter()
+    p_micro = AverageMeter()
+    r_micro = AverageMeter()
+    f_micro = AverageMeter()
+    p_macro = AverageMeter()
+    r_macro = AverageMeter()
+    f_macro = AverageMeter()
+    s_macro = AverageMeter()
+    mAP_micro = AverageMeter()
+    mAP_macro = AverageMeter()
+    acc = AverageMeter()
     criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.9)
-    for i in range(100 * len(data_manager.train_dbids)):
-        train_inputs, targets = data_manager.sample_train_batch(64)
-        class_scores = model.forward(train_inputs)
-        loss = criterion(class_scores, targets)
-        print(loss)
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
+    for epoch in range(100):
+        for i in range(0, len(data_manager.train_dbids), 64):
+            train_inputs, targets = data_manager.sample_train_batch(64)
+            logits = model.forward(train_inputs)
+            loss = criterion(logits, targets)
+            losses.update(loss.item(), 64)
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+
+        dev_inputs, targets = data_manager.sample_dev_batch(121)
+        logits = model.forward(dev_inputs)
+        (batch_p_micro,
+         batch_r_micro,
+         batch_f_micro,
+         batch_s_micro,
+         batch_p_macro,
+         batch_r_macro,
+         batch_f_macro,
+         batch_s_macro,
+         batch_mAP_micro,
+         batch_mAP_macro,
+         batch_acc) = compute_metrics(logit=logits, target=targets)
+        p_macro.update(batch_p_macro, 121)
+        p_micro.update(batch_p_micro, 121)
+        r_macro.update(batch_r_macro, 121)
+        r_micro.update(batch_r_micro, 121)
+        f_macro.update(batch_f_macro, 121)
+        f_micro.update(batch_f_micro, 121)
+        s_macro.update(batch_s_macro, 121)
+        mAP_micro.update(batch_mAP_micro, 121)
+        mAP_macro.update(batch_mAP_macro, 121)
+        acc.update(batch_acc, 121)
+
     return model
 
 
