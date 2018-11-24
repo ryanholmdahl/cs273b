@@ -212,7 +212,7 @@ class TextEmbeddingModel(nn.Module):
         cuda
     ):
         print(des_embed.data.shape)
-        encoder_init_hidden = self.encoder.initHidden(des_embed.data.shape[1], cuda)
+        encoder_init_hidden = self.encoder.initHidden(des_embed.data.shape[0], cuda)
         des_rnn = self.encoder(
                 inputs=des_embed,
                 hidden=encoder_init_hidden,
