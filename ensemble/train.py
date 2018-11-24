@@ -49,7 +49,14 @@ def _train(data_manager, model):
     mAP_micro = AverageMeter()
     mAP_macro = AverageMeter()
     acc = AverageMeter()
-    criterion = nn.BCEWithLogitsLoss()
+    total_positive_labels = (
+        data_manager.train_labels.sum() + data_manager.dev_labels.sum() + data_manager.test_labels.sum()
+    )
+    total_labels = (
+        data_manager.train_labels.size() + data_manager.dev_labels.size() + data_manager.test_labels.size()
+    )
+    print(total_labels/total_positive_labels)
+    criterion = nn.BCEWithLogitsLoss(pos_weight=total_labels/total_positive_labels)
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.9)
     for epoch in range(100):
         for i in range(0, len(data_manager.train_dbids), 64):
