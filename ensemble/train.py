@@ -38,7 +38,8 @@ def _load_submodules(data_manager):
 
 def _train(data_manager, model):
     bar = Bar('Processing', max=100*len(data_manager.train_dbids)/64)
-    losses = AverageMeter()
+    train_losses = AverageMeter()
+    dev_losses = AverageMeter()
     p_micro = AverageMeter()
     r_micro = AverageMeter()
     f_micro = AverageMeter()
@@ -64,19 +65,20 @@ def _train(data_manager, model):
             train_inputs, targets = data_manager.sample_train_batch(64)
             logits = model.forward(train_inputs)
             loss = criterion(logits.reshape(-1), targets.reshape(-1))
-            losses.update(loss.item(), 64)
+            train_losses.update(loss.item(), 64)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
             bar.suffix = '({epoch}/{max_epochs}) ' \
-                         '| Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc:.3f} ' \
-                         '| P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP mac: {mAP:.3f}|' \
+                         '| Total: {total:} | ETA: {eta:} | TLoss: {train_loss:.4f} | DLoss: {dev_loss:.4f} ' \
+                         '| Acc: {acc:.3f} | P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP mac: {mAP:.3f}|' \
                 .format(
                         epoch=epoch,
                         max_epochs=100,
                         total=bar.elapsed_td,
                         eta=bar.eta_td,
-                        loss=losses.avg,
+                        train_loss=train_losses.avg,
+                        dev_loss=dev_losses.avg,
                         acc=acc.avg,
                         p=p_micro.avg,
                         r=r_micro.avg,
@@ -87,6 +89,8 @@ def _train(data_manager, model):
 
         dev_inputs, targets = data_manager.sample_dev_batch(121)
         logits = model.forward(dev_inputs)
+        loss = criterion(logits.reshape(-1), targets.reshape(-1))
+        dev_losses.update(loss.item(), 121)
         (batch_p_micro,
          batch_r_micro,
          batch_f_micro,
