@@ -22,7 +22,7 @@ class EnsembleModel(nn.Module):
             self.add_module('submodule{}'.format(i), submodule)
 
     def forward(self, submodule_inputs):
-        embeds = [submodule(submodule_input)
+        embeds = [submodule(*submodule_input)
                   for submodule, submodule_input in zip(self.submodules, submodule_inputs)]
         embed = torch.cat(embeds, dim=1)
         return self.fc(embed)

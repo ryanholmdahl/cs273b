@@ -16,18 +16,18 @@ class RNNEncoder(nn.Module):
             dropout=config.dp_ratio,
             bidirectional=config.bidirectional)
 
-    def initHidden(self, batch_size, cuda):
+    def initHidden(self, cuda):
         if self.config.bidirectional:
-            state_shape = 2, batch_size, self.config.hidden_size
+            state_shape = 2, 1, self.config.hidden_size
         else:
-            state_shape = 1, batch_size, self.config.hidden_size
+            state_shape = 1, 1, self.config.hidden_size
         if cuda:
             h0 = c0 = torch.cuda.zeros(state_shape)
         else:
             h0 = c0 = torch.zeros(state_shape)
         return h0, c0
 
-    def forward(self, inputs, hidden, batch_size):
+    def forward(self, inputs, hidden):
         outputs, (ht, ct) = self.rnn(inputs, hidden)
         return outputs
 
@@ -209,27 +209,24 @@ class TextEmbeddingModel(nn.Module):
         ind_unsort,
         act_embed,
         act_unsort,
-        encoder_init_hidden,
-        batch_size
+        cuda
     ):
+        encoder_init_hidden = self.encoder.initHidden(cuda)
         des_rnn = self.encoder(
                 inputs=des_embed,
                 hidden=encoder_init_hidden,
-                batch_size=batch_size
             )
         des_rnn = nn.utils.rnn.pad_packed_sequence(des_rnn, padding_value=-np.infty)[0]
         des_rnn = des_rnn.index_select(1, des_unsort)
         ind_rnn = self.encoder(
             inputs=des_embed,
             hidden=encoder_init_hidden,
-            batch_size=batch_size
         )
         ind_rnn = nn.utils.rnn.pad_packed_sequence(ind_rnn, padding_value=-np.infty)[0]
         ind_rnn = ind_rnn.index_select(1, ind_unsort)
         act_rnn = self.encoder(
             inputs=act_embed,
             hidden=encoder_init_hidden,
-            batch_size=batch_size
         )
         act_rnn = nn.utils.rnn.pad_packed_sequence(act_rnn, padding_value=-np.infty)[0]
         act_rnn = act_rnn.index_select(1, act_unsort)
