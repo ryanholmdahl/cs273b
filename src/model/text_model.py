@@ -242,7 +242,7 @@ class TextEmbeddingModel(nn.Module):
         ind_maxpool = ind_rnn[-1, :, :]
         act_maxpool = act_rnn[-1, :, :]
 
-        scores = torch.cat([des_maxpool, ind_maxpool, act_maxpool])
+        scores = torch.cat([des_maxpool, ind_maxpool, act_maxpool], dim=1)
 
         # scores = self.base(torch.cat([
         #     des_maxpool,
