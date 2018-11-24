@@ -11,7 +11,7 @@ class EnsembleModel(nn.Module):
         for hidden_dim in hidden_dims:
             fcs.append(nn.Sequential(
                 nn.Linear(prev_dim, hidden_dim),
-                nn.BatchNorm1d,
+                nn.BatchNorm1d(hidden_dim),
                 nn.ReLU(),
             ))
             prev_dim = hidden_dim
