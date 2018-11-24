@@ -100,10 +100,13 @@ class TextDataManager(DataManager):
 
         return (des_packed_tensor,
                 des_idx_unsort,
+                batch_des_sents_len,
                 ind_packed_tensor,
                 ind_idx_unsort,
+                batch_ind_sents_len,
                 act_packed_tensor,
                 act_idx_unsort,
+                batch_act_sents_len,
                 len(dbids),
                 self.use_cuda)
 

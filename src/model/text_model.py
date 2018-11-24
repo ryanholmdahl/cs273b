@@ -205,10 +205,13 @@ class TextEmbeddingModel(nn.Module):
         self,
         des_embed,
         des_unsort,
+        des_unsort_lens,
         ind_embed,
         ind_unsort,
+        ind_unsort_lens,
         act_embed,
         act_unsort,
+        act_unsort_lens,
         batch_size,
         cuda
     ):
@@ -235,9 +238,9 @@ class TextEmbeddingModel(nn.Module):
         # des_maxpool = torch.max(des_rnn, 0)[0]  # [batch_size, embed_size]
         # ind_maxpool = torch.max(ind_rnn, 0)[0]
         # act_maxpool = torch.max(act_rnn, 0)[0]
-        des_maxpool = des_rnn[-1, :, :]
-        ind_maxpool = ind_rnn[-1, :, :]
-        act_maxpool = act_rnn[-1, :, :]
+        des_maxpool = des_rnn[des_unsort_lens, :, :]
+        ind_maxpool = ind_rnn[ind_unsort_lens, :, :]
+        act_maxpool = act_rnn[act_unsort_lens, :, :]
 
         scores = self.base(torch.cat([
             des_maxpool,

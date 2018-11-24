@@ -109,7 +109,7 @@ class Vocab:
             seq_lengths.cpu().numpy(),
         )
 
-        return seq_pack_tensor, idx_unsort
+        return seq_pack_tensor, idx_unsort,
 
     def load_glove(self, path, d_embed, size='6B'): # size can be '6B' or '840B'
         name = 'glove.' + size + '.' + str(d_embed) + 'd.txt'
