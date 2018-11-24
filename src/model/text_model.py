@@ -216,23 +216,25 @@ class TextEmbeddingModel(nn.Module):
         des_rnn = self.encoder(
                 inputs=des_embed,
                 hidden=encoder_init_hidden,
+                batch_size=batch_size,
             )
         des_rnn = nn.utils.rnn.pad_packed_sequence(des_rnn, padding_value=-np.infty)[0]
         des_rnn = des_rnn.index_select(1, des_unsort)
         ind_rnn = self.encoder(
             inputs=des_embed,
             hidden=encoder_init_hidden,
+            batch_size=batch_size,
         )
         ind_rnn = nn.utils.rnn.pad_packed_sequence(ind_rnn, padding_value=-np.infty)[0]
         ind_rnn = ind_rnn.index_select(1, ind_unsort)
         act_rnn = self.encoder(
             inputs=act_embed,
             hidden=encoder_init_hidden,
+            batch_size=batch_size,
         )
         act_rnn = nn.utils.rnn.pad_packed_sequence(act_rnn, padding_value=-np.infty)[0]
         act_rnn = act_rnn.index_select(1, act_unsort)
 
-        print(des_rnn.shape)
         des_maxpool = torch.max(des_rnn, 0)[0]  # [batch_size, embed_size]
         ind_maxpool = torch.max(ind_rnn, 0)[0]
         act_maxpool = torch.max(act_rnn, 0)[0]
