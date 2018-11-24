@@ -211,8 +211,8 @@ class TextEmbeddingModel(nn.Module):
         act_unsort,
         cuda
     ):
-        print(des_embed.shape)
-        encoder_init_hidden = self.encoder.initHidden(des_embed.shape[0], cuda)
+        print(des_embed.data.shape)
+        encoder_init_hidden = self.encoder.initHidden(des_embed.data.shape[1], cuda)
         des_rnn = self.encoder(
                 inputs=des_embed,
                 hidden=encoder_init_hidden,
