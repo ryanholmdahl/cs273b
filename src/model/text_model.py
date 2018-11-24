@@ -76,6 +76,7 @@ class TextBaseModel(nn.Module):
         act_rnn = nn.utils.rnn.pad_packed_sequence(act_rnn, padding_value=-np.infty)[0]
         act_rnn = act_rnn.index_select(1, act_unsort)
 
+        print(des_rnn.shape)
         des_maxpool = torch.max(des_rnn, 0)[0]  # [batch_size, embed_size]
         ind_maxpool = torch.max(ind_rnn, 0)[0]
         act_maxpool = torch.max(act_rnn, 0)[0]
