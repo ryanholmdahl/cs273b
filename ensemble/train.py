@@ -10,7 +10,7 @@ from src.text_model_pipeline import compute_metrics
 from pytorch_classification.utils import AverageMeter, Bar
 
 
-# TODO: fix rel paths
+# TODO: get last outputs by seq_len, not by -1
 # TODO: load checkpoints
 
 
@@ -62,7 +62,7 @@ def _train(data_manager, model):
             optimizer.zero_grad()
             bar.suffix = '({epoch}/{max_epochs}) ' \
                          '| Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc:.3f} ' \
-                         '| P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP mic: {mAP:.3f}|' \
+                         '| P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP mac: {mAP:.3f}|' \
                 .format(
                         epoch=epoch,
                         max_epochs=100,
@@ -73,7 +73,7 @@ def _train(data_manager, model):
                         p=p_micro.avg,
                         r=r_micro.avg,
                         f=f_micro.avg,
-                        mAP=mAP_micro.avg,
+                        mAP=mAP_macro.avg,
                 )
             bar.next()
 
