@@ -223,7 +223,7 @@ class TextEmbeddingModel(nn.Module):
         des_rnn, des_lens = nn.utils.rnn.pad_packed_sequence(des_rnn, padding_value=-np.infty)
         print(des_lens)
         des_maxpool = torch.gather(des_rnn, 0,
-                                   (des_lens - 1).view(1, -1)
+                                   (des_lens.cuda() - 1).view(1, -1)
                                    .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
         des_maxpool = des_maxpool.index_select(1, des_unsort)
         # des_rnn = des_rnn.index_select(1, des_unsort)
@@ -234,7 +234,7 @@ class TextEmbeddingModel(nn.Module):
         )
         ind_rnn, ind_lens = nn.utils.rnn.pad_packed_sequence(ind_rnn, padding_value=-np.infty)
         ind_maxpool = torch.gather(ind_rnn, 0,
-                                   (ind_lens - 1).view(1, -1)
+                                   (ind_lens.cuda() - 1).view(1, -1)
                                    .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
         ind_maxpool = ind_maxpool.index_select(1, ind_unsort)
 
@@ -244,7 +244,7 @@ class TextEmbeddingModel(nn.Module):
         )
         act_rnn, act_lens = nn.utils.rnn.pad_packed_sequence(act_rnn, padding_value=-np.infty)
         act_maxpool = torch.gather(act_rnn, 0,
-                                   (act_lens - 1).view(1, -1)
+                                   (act_lens.cuda() - 1).view(1, -1)
                                    .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
         act_maxpool = act_maxpool.index_select(1, act_unsort)
 
