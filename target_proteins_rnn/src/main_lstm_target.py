@@ -20,9 +20,9 @@ def main(train_target_ids, target_letter_vocab, target_vocab, labels):
 
 if __name__ == '__main__':
     # create output dir
-    output_dir = hparams.ROOT_PATH + 'output'
-    if not os.path.exists(hparams.ROOT_PATH + 'output'):
-        os.mkdir(output_dir)
+#    output_dir = hparams.ROOT_PATH + 'output'
+#    if not os.path.exists(hparams.ROOT_PATH + 'output'):
+#        os.mkdir(output_dir)
         
     # load inputs
     with open(hparams.TRAIN_TARGET_FILE, 'rb') as f:

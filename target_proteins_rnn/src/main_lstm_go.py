@@ -20,9 +20,9 @@ def main(train_goterms, gowords_vocab, goterms_vocab, labels):
 
 if __name__ == '__main__':
     # create output dir
-    output_dir = hparams.ROOT_PATH + 'output'
-    if not os.path.exists(hparams.ROOT_PATH + 'output'):
-        os.mkdir(hparams.ROOT_PATH + 'output')
+#    output_dir = hparams.ROOT_PATH + 'output'
+#    if not os.path.exists(hparams.ROOT_PATH + 'output'):
+#        os.mkdir(hparams.ROOT_PATH + 'output')
         
     # load inputs
     with open(hparams.GOWORDS_VOCAB_FILE, 'rb') as f1:

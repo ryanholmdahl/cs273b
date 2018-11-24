@@ -17,9 +17,9 @@ def main(train_seq, letter_to_idx):
 
 if __name__ == '__main__':
     # create output dir
-    output_dir = hparams.ROOT_PATH + 'output'
-    if not os.path.exists(hparams.ROOT_PATH + 'output'):
-        os.mkdir(output_dir)
+#    output_dir = hparams.ROOT_PATH + 'output'
+#    if not os.path.exists(hparams.ROOT_PATH + 'output'):
+#        os.mkdir(output_dir)
         
     # load inputs
     with open(hparams.LETTER_TO_TEXT_FILE, 'rb') as f1:
