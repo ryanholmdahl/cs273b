@@ -247,5 +247,6 @@ class TextEmbeddingModel(nn.Module):
             ind_maxpool,
             act_maxpool  # [batch_size, 3*embed_size]
         ], 1))  # [batch_size, 3*last_hidden_size]
+        print(scores)
 
         return scores
