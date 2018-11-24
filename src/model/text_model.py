@@ -222,7 +222,7 @@ class TextEmbeddingModel(nn.Module):
             )
         des_rnn, des_lens = nn.utils.rnn.pad_packed_sequence(des_rnn, padding_value=-np.infty)
         print(des_lens)
-        des_index = (des_lens.cuda() - 1).view(-1, 1).unsqueeze(2).repeat(1, 1, self.config.hidden_size)
+        des_index = (des_lens - 1).view(-1, 1).unsqueeze(2).repeat(1, 1, self.config.hidden_size).cuda()
         des_maxpool = torch.gather(des_rnn.transpose(0, 1), 1, des_index).squeeze(0)
         des_maxpool = des_maxpool.index_select(1, des_unsort)
         # des_rnn = des_rnn.index_select(1, des_unsort)
@@ -232,7 +232,8 @@ class TextEmbeddingModel(nn.Module):
             hidden=encoder_init_hidden,
         )
         ind_rnn, ind_lens = nn.utils.rnn.pad_packed_sequence(ind_rnn, padding_value=-np.infty)
-        ind_index = (ind_lens.cuda() - 1).view(-1, 1).unsqueeze(2).repeat(1, 1, self.config.hidden_size)
+        print(ind_lens)
+        ind_index = (ind_lens - 1).view(-1, 1).unsqueeze(2).repeat(1, 1, self.config.hidden_size).cuda()
         ind_maxpool = torch.gather(ind_rnn.transpose(0, 1), 1, ind_index).squeeze(0)
         ind_maxpool = ind_maxpool.index_select(1, ind_unsort)
 
@@ -241,7 +242,8 @@ class TextEmbeddingModel(nn.Module):
             hidden=encoder_init_hidden,
         )
         act_rnn, act_lens = nn.utils.rnn.pad_packed_sequence(act_rnn, padding_value=-np.infty)
-        act_index = (act_lens.cuda() - 1).view(-1, 1).unsqueeze(2).repeat(1, 1, self.config.hidden_size)
+        print(act_lens)
+        act_index = (act_lens - 1).view(-1, 1).unsqueeze(2).repeat(1, 1, self.config.hidden_size).cuda()
         act_maxpool = torch.gather(act_rnn.transpose(0, 1), 1, act_index).squeeze(1)
         act_maxpool = act_maxpool.index_select(1, act_unsort)
 
