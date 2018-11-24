@@ -14,6 +14,8 @@ def compute_metrics(logit, target):
     prob = torch.sigmoid(logit).detach().cpu().numpy()
     pred = (logit > 0).detach().int().cpu().numpy()
     target = target.cpu().numpy()
+    print(target)
+    print(prob)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         p_micro, r_micro, f_micro, s_micro \
