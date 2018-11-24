@@ -12,6 +12,7 @@ import ensemble.constant as constant
 class TextDataManager(DataManager):
     def __init__(self, train_dbids, dev_dbids, test_dbids, use_cuda, max_len, glove_embedding_size):
         super(TextDataManager, self).__init__(train_dbids, dev_dbids, test_dbids, use_cuda)
+        print('Initializing TextDataManager...')
         self.max_len = max_len
         self.vocab = vocab.Vocab(logdir=constant.DATA_DIR)
         self.vocab.load_glove(path=constant.GLOVE_DIR, d_embed=glove_embedding_size)
@@ -47,10 +48,11 @@ class TextDataManager(DataManager):
         self.test_dbid_to_idx = {
             dbid: i for i, dbid in enumerate(self.test_dbids)
         }
+        print('TextDataManager initialized.')
 
     def connect_to_submodule(self, submodule):
-        self.embed1 = submodule.embed1
-        self.embed2 = submodule.embed2
+        self.embed1 = submodule.glove_embed
+        self.embed2 = submodule.other_embed
 
     def get_sents_tensor(self, sents_num):
         """ sents_num: list of lists of word ids """

@@ -37,7 +37,9 @@ def _train(model):
 
 def _main():
     cuda, hiddens = _parse_args()
+    print('Loading data manager...')
     data_manager = _load_data_manager(cuda)
+    print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
     model = EnsembleModel(-1, hiddens, -1, submodules)
