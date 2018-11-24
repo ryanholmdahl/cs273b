@@ -53,7 +53,7 @@ def _train(data_manager, model):
         data_manager.train_labels.sum() + data_manager.dev_labels.sum() + data_manager.test_labels.sum()
     )
     total_labels = (
-        data_manager.train_labels.size() + data_manager.dev_labels.size() + data_manager.test_labels.size()
+        data_manager.train_labels.nelement() + data_manager.dev_labels.nelement() + data_manager.test_labels.nelement()
     )
     print(total_labels/total_positive_labels)
     criterion = nn.BCEWithLogitsLoss(pos_weight=total_labels/total_positive_labels)
