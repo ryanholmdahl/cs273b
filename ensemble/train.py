@@ -69,14 +69,11 @@ def _train(data_manager, model):
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-            bar.suffix = '({epoch}/{max_epochs}) ' \
-                         '| Total: {total:} | ETA: {eta:} | TLoss: {train_loss:.4f} | DLoss: {dev_loss:.4f} ' \
+            bar.suffix = '({epoch}/{max_epochs}) | TLoss: {train_loss:.4f} | DLoss: {dev_loss:.4f} ' \
                          '| Acc: {acc:.3f} | P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP mac: {mAP:.3f}|' \
                 .format(
                         epoch=epoch,
                         max_epochs=100,
-                        total=bar.elapsed_td,
-                        eta=bar.eta_td,
                         train_loss=train_losses.avg,
                         dev_loss=dev_losses.avg,
                         acc=acc.avg,
