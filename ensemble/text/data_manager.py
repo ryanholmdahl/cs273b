@@ -53,7 +53,7 @@ class TextDataManager(DataManager):
         data_size = len(sents_num)
         r_tensor = torch.LongTensor(data_size, self.max_len)
         r_tensor.fill_(vocab.PAD_token)
-        slen_tensor = torch.IntTensor(data_size,)
+        slen_tensor = torch.LongTensor(data_size,)
 
         b = 0
         for sent_wordids in sents_num:
