@@ -3,7 +3,7 @@ import torch
 
 
 class EnsembleModel(nn.Module):
-    def __init__(self, embed_dim, hidden_dims, output_dim, submodules):
+    def __init__(self, embed_dim, hidden_dims, output_dim, submodules, dropout):
         super(EnsembleModel, self).__init__()
         self.submodules = submodules
         fcs = []
@@ -13,6 +13,7 @@ class EnsembleModel(nn.Module):
                 nn.Linear(prev_dim, hidden_dim),
                 nn.BatchNorm1d(hidden_dim),
                 nn.ReLU(),
+                nn.Dropout(dropout),
             ))
             prev_dim = hidden_dim
         fcs.append(nn.Linear(prev_dim, output_dim))
