@@ -205,8 +205,6 @@ class TextEmbeddingModel(nn.Module):
         lens = lens - 1
         lens = lens.reshape(-1, 1, 1)
         lens = lens.repeat(1, 1, self.config.hidden_size)
-        print(lens.shape)
-        print(lens)
         lens = lens.cuda()
         return lens
 
@@ -230,35 +228,34 @@ class TextEmbeddingModel(nn.Module):
                 hidden=encoder_init_hidden,
             )
         des_rnn, des_lens = nn.utils.rnn.pad_packed_sequence(des_rnn, padding_value=-np.infty)
-        print(des_lens)
-        des_index = self.buh(des_lens)
-        des_maxpool = torch.gather(des_rnn.transpose(0, 1), 1, des_index).squeeze(0)
-        des_maxpool = des_maxpool.index_select(1, des_unsort)
-        # des_rnn = des_rnn.index_select(1, des_unsort)
+        # des_index = self.buh(des_lens)
+        # des_maxpool = torch.gather(des_rnn.transpose(0, 1), 1, des_index).squeeze(0)
+        # des_maxpool = des_maxpool.index_select(1, des_unsort)
+        des_rnn = des_rnn.index_select(1, des_unsort)
 
         ind_rnn = self.encoder(
             inputs=ind_embed,
             hidden=encoder_init_hidden,
         )
         ind_rnn, ind_lens = nn.utils.rnn.pad_packed_sequence(ind_rnn, padding_value=-np.infty)
-        print(ind_lens)
-        ind_index = self.buh(ind_lens)
-        ind_maxpool = torch.gather(ind_rnn.transpose(0, 1), 1, ind_index).squeeze(0)
-        ind_maxpool = ind_maxpool.index_select(1, ind_unsort)
+        # ind_index = self.buh(ind_lens)
+        # ind_maxpool = torch.gather(ind_rnn.transpose(0, 1), 1, ind_index).squeeze(0)
+        # ind_maxpool = ind_maxpool.index_select(1, ind_unsort)
+        ind_rnn = ind_rnn.index_select(1, ind_unsort)
 
         act_rnn = self.encoder(
             inputs=act_embed,
             hidden=encoder_init_hidden,
         )
         act_rnn, act_lens = nn.utils.rnn.pad_packed_sequence(act_rnn, padding_value=-np.infty)
-        print(act_lens)
-        act_index = self.buh(act_lens)
-        act_maxpool = torch.gather(act_rnn.transpose(0, 1), 1, act_index).squeeze(1)
-        act_maxpool = act_maxpool.index_select(1, act_unsort)
+        # act_index = self.buh(act_lens)
+        # act_maxpool = torch.gather(act_rnn.transpose(0, 1), 1, act_index).squeeze(1)
+        # act_maxpool = act_maxpool.index_select(1, act_unsort)
+        act_rnn = act_rnn.index_select(1, act_unsort)
 
-        # des_maxpool = torch.max(des_rnn, 0)[0]  # [batch_size, embed_size]
-        # ind_maxpool = torch.max(ind_rnn, 0)[0]
-        # act_maxpool = torch.max(act_rnn, 0)[0]
+        des_maxpool = torch.max(des_rnn, 0)[0]  # [batch_size, embed_size]
+        ind_maxpool = torch.max(ind_rnn, 0)[0]
+        act_maxpool = torch.max(act_rnn, 0)[0]
         # des_maxpool = torch.gather(des_rnn, 0,
         #                            (des_unsort_lens - 1).view(1, -1)
         #                            .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
