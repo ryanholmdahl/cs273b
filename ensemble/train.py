@@ -37,7 +37,7 @@ def _load_submodules(data_manager):
 
 
 def _train(data_manager, model):
-    bar = Bar('Processing', max=args.batches_per_epoch)
+    bar = Bar('Processing', max=100*len(data_manager.train_dbids)/64)
     losses = AverageMeter()
     p_micro = AverageMeter()
     r_micro = AverageMeter()
