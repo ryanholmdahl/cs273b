@@ -22,7 +22,7 @@ class RNNEncoder(nn.Module):
         else:
             state_shape = 1, 1, self.config.hidden_size
         if cuda:
-            h0 = c0 = torch.cuda.zeros(state_shape)
+            h0 = c0 = torch.FloatTensor(state_shape).fill_(0)
         else:
             h0 = c0 = torch.zeros(state_shape)
         return h0, c0
