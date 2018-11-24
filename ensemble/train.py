@@ -3,6 +3,8 @@ from ensemble.text.model import load_text_models
 from ensemble.data_manager import EnsembleDataManager
 from ensemble.text.data_manager import TextDataManager
 import argparse
+import torch.nn as nn
+import torch.optim as optim
 
 
 # TODO: fix rel paths
@@ -32,10 +34,16 @@ def _load_submodules(data_manager):
 
 
 def _train(data_manager, model):
-    for i in range(10):
-        train_inputs = data_manager.sample_train_batch(64)
+    criterion = nn.BCEWithLogitsLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.9)
+    for i in range(100 * len(data_manager.train_dbids)):
+        train_inputs, targets = data_manager.sample_train_batch(64)
         class_scores = model.forward(train_inputs)
-        print(class_scores)
+        loss = criterion(class_scores, targets)
+        print(loss)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
     return model
 
 
