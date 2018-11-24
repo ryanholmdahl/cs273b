@@ -1,3 +1,4 @@
+
 import torch
 import torch.nn as nn
 import numpy as np
@@ -51,17 +52,15 @@ def trainIter(train_goterms, gowords_vocab, goterms_vocab, labels, n_epochs, sav
         train_losses = 0.0
         for dbid, drug_goterms in train_goterms.items():
             curr_labels = labels[dbid]
-            if len(drug_goterms) == 0 or (len(drug_goterms[0]) == 0):
-                curr_embeds = torch.zeros(hparams.HIDDEN_SIZE, device=device)
-            else:
-                curr_embeds, loss = lstm_model(drug_goterms, gowords_vocab, curr_labels)              
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-                train_losses += loss
-                
+            curr_embeds, loss = lstm_model(drug_goterms, gowords_vocab, curr_labels)
             all_embeds.append(curr_embeds)
-     
+            
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            train_losses += loss
+        
         avg_train_loss = train_losses / len(train_goterms)
         all_embeds = torch.stack(all_embeds)
 

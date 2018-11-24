@@ -1,10 +1,8 @@
 import numpy as np
 import torch
 import pickle
-import itertools as itools
 import os
-from model_lstm import lstmClassifier
-from train_lstm import get_trained_embeds, trainIter
+from train_lstm import trainIter
 import hparams_lstm as hparams
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -13,22 +11,18 @@ torch.manual_seed(1)
 torch.cuda.manual_seed_all
 
 
-def main(train_goterms_1d, train_goterms, gowords_vocab, goterms_vocab):
+def main(train_goterms, gowords_vocab, goterms_vocab, labels):
     
-    lstm_model = lstmClassifier(hparams.EMBEDDING_DIM, hparams.HIDDEN_SIZE, 
-                                len(gowords_vocab), len(goterms_vocab)).to(device)
-            
-    lstm_trained, avg_val_acc = trainIter(lstm_model, train_goterms_1d, gowords_vocab, goterms_vocab, 
-                                          hparams.N_EPOCHS, hparams.SAVE_PATH_GO)
-    embeds_trained = get_trained_embeds(train_goterms, gowords_vocab, lstm_trained)
-    return lstm_trained, embeds_trained, avg_val_acc
+    lstm_trained, embeds = trainIter(train_goterms, gowords_vocab, goterms_vocab, labels, hparams.N_EPOCHS, hparams.SAVE_PATH_GO)            
+
+    return lstm_trained, embeds
 
 
 if __name__ == '__main__':
     # create output dir
     output_dir = hparams.ROOT_PATH + 'output'
     if not os.path.exists(hparams.ROOT_PATH + 'output'):
-        os.makedirs(output_dir)
+        os.mkdir(hparams.ROOT_PATH + 'output')
         
     # load inputs
     with open(hparams.GOWORDS_VOCAB_FILE, 'rb') as f1:
@@ -40,16 +34,16 @@ if __name__ == '__main__':
     with open(hparams.TRAIN_GOTERMS_FILE, 'rb') as f:
         train_goterms = pickle.load(f)
         
-    train_goterms_1d = list(itools.chain.from_iterable(itools.chain.from_iterable(train_goterms)))
-    
+    with open(hparams.GOTERMS_LABEL_FILE, 'rb') as f:
+        labels = pickle.load(f)
+            
     # train
-    lstm_trained, embeds_trained, avg_val_acc = main(train_goterms_1d, train_goterms, gowords_vocab, goterms_vocab)
+    lstm_trained, embeds_trained = main(train_goterms, gowords_vocab, goterms_vocab, labels)
     
     # save
     with open(hparams.SAVE_PATH_GO + 'trained.pkl', 'wb') as f:
         pickle.dump(lstm_trained, f)
         pickle.dump(embeds_trained, f)
-        pickle.dump(avg_val_acc, f)
-    
+f    
     
 
