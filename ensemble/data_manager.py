@@ -63,6 +63,10 @@ class EnsembleDataManager:
         self.train_labels = torch.Tensor([train_label_dict[dbid] for dbid in self.train_dbids])
         self.dev_labels = torch.Tensor([train_label_dict[dbid] for dbid in self.dev_dbids])
         self.test_labels = torch.Tensor([test_label_dict[dbid] for dbid in self.test_dbids])
+        if cuda:
+            self.train_labels = self.train_labels.cuda()
+            self.dev_labels = self.dev_labels.cuda()
+            self.test_labels = self.test_labels.cuda()
 
         self.submodule_managers = []
         for submodule_manager, args in submodule_managers:
