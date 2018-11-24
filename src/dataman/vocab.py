@@ -21,6 +21,7 @@ UNK_token = 2
 
 splitstring = '-|/|_|\+|@|\.|,'
 
+
 class Vocab:
     def __init__(self, logdir=None):
         self.word2index = {}
@@ -97,7 +98,7 @@ class Vocab:
             idx_unsort = idx_unsort.cuda()
 
         # embed
-        seq_tensor = torch.cat([embed1(seq_tensor),embed2(seq_tensor)],-1)
+        seq_tensor = torch.cat([embed1(seq_tensor), embed2(seq_tensor)], -1)
 
         # if torch.min(seq_lengths).item() <= 0:
         #     print(seq_lengths,seq_tensor)
