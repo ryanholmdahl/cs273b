@@ -17,7 +17,6 @@ class ProteinDataManager(DataManager):
 
         with open('/data/data_targetProteins/train_target_seq.pkl', 'rb') as infile:
             dbid_to_seqs = pickle.load(infile)
-        print(dbid_to_seqs[self.train_dbids[0]])
         train_sents = [[self.vocab.numberize_sentence(seq) for seq in dbid_to_seqs[dbid]] for dbid in self.train_dbids]
         self.train_sents_tensor, self.train_sents_len, self.train_max_proteins = self.get_sents_tensor(train_sents)
         dev_sents = [[self.vocab.numberize_sentence(seq) for seq in dbid_to_seqs[dbid]] for dbid in self.dev_dbids]
@@ -35,7 +34,6 @@ class ProteinDataManager(DataManager):
     def get_sents_tensor(self, sents_num):
         """ sents_num: list of lists of word ids """
         num_dbids = len(sents_num)
-        print(len(sents_num))
         print(sents_num[0])
         max_num_proteins = max([len(protein_seqs) for protein_seqs in sents_num])
         r_tensor = torch.LongTensor(num_dbids * max_num_proteins, self.max_len)

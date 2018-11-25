@@ -43,7 +43,7 @@ class Vocab:
     def numberize_sentence(self, sentence):
         if sentence is None:
             return [EOS_token]
-        sentence = sentence.strip().lower()
+        sentence = sentence.strip()
         numberized = [
             self.word2index[word]
             if word in self.word2index else UNK_token
