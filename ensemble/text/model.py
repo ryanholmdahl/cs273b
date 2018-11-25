@@ -27,7 +27,6 @@ CONFIG = dotdict({
         'fix_emb_glove': True,  #
         'fix_emb_other': True,  #
         'dp_ratio': 0.3,  #
-        'mlp_hidden_size_list': [32, 32],
         'cuda': torch.cuda.is_available(),
     })
 
