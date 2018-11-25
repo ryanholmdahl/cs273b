@@ -55,7 +55,7 @@ class ProteinEmbeddingModel(nn.Module):
         protein_rnn, _ = nn.utils.rnn.pad_packed_sequence(protein_rnn, padding_value=-np.infty)
         protein_rnn = protein_rnn.index_select(1, protein_unsort)  # [batch_size * proteins_per, max_protein_len]
         print(protein_rnn.shape)
-        protein_rnn = protein_rnn.reshape(batch_size, proteins_per, -1)
-        protein_maxpool = torch.max(protein_rnn, 1)[0]  # [batch_size, embed_size]
+        protein_rnn = protein_rnn.reshape(self.config.max_len, batch_size, proteins_per, -1)
+        protein_maxpool = torch.max(protein_rnn, 0)[0]  # [batch_size, embed_size]
 
         return protein_maxpool
