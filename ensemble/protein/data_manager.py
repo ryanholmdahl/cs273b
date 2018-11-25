@@ -53,7 +53,8 @@ class ProteinDataManager(DataManager):
                 b += 1
                 proteins_added += 1
             while proteins_added < max_num_proteins:
-                slen_tensor[b] = 0
+                slen_tensor[b] = 1
+                r_tensor[b, -1] = vocab.EOS_token
                 b += 1
                 proteins_added += 1
         return r_tensor, slen_tensor, max_num_proteins
