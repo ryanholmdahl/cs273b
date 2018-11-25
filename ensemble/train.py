@@ -13,7 +13,6 @@ from pytorch_classification.utils import AverageMeter, Bar
 
 
 # TODO: check against test
-# TODO: add proteins
 # TODO: filter configs
 # TODO: load checkpoints
 

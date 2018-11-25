@@ -185,22 +185,6 @@ class TextEmbeddingModel(nn.Module):
         self.dropout = nn.Dropout(p=config.dp_ratio)
         self.relu = nn.ReLU()
 
-        hidden_size = config.hidden_size
-        if self.config.bidirectional:
-            hidden_size *= 2
-        hidden_size *= 3
-
-        mlp_layers = []
-        prev_hidden_size = hidden_size
-        for next_hidden_size in config.mlp_hidden_size_list:
-            mlp_layers.extend([
-                nn.Linear(prev_hidden_size, next_hidden_size),
-                self.relu,
-                self.dropout,
-            ])
-            prev_hidden_size = next_hidden_size
-        self.base = nn.Sequential(*mlp_layers)
-
     def buh(self, lens):
         lens = lens - 1
         lens = lens.reshape(-1, 1, 1)
