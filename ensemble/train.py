@@ -32,16 +32,18 @@ def _load_data_manager(cuda):
             ProteinDataManager, [
                 50,
             ],
-            # TextDataManager, [
-            #     300, 50,
-            # ]
+            TextDataManager, [
+                300, 50,
+            ],
         ),
     ])
 
 
 def _load_submodules(data_manager):
-    return load_protein_models(data_manager.submodule_managers[0].vocab.n_words)
-    # return load_text_models(data_manager.submodule_managers[0].vocab.n_words)
+    return (
+        load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
+        load_text_models(data_manager.submodule_managers[1].vocab.n_words)
+    )
 
 
 def _train(data_manager, model):
@@ -128,7 +130,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(32, hiddens, 1121, submodules, 0.5)
+    model = EnsembleModel(32 * 4, hiddens, 1121, submodules, 0.5)
     if cuda:
         model = model.cuda()
     _train(data_manager, model)
