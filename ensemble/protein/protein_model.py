@@ -48,7 +48,6 @@ class ProteinEmbeddingModel(nn.Module):
         cuda
     ):
         encoder_init_hidden = self.encoder.initHidden(batch_size * proteins_per, cuda)
-        print(protein_embed.shape)
         protein_rnn = self.encoder(
                 inputs=protein_embed,
                 hidden=encoder_init_hidden,
