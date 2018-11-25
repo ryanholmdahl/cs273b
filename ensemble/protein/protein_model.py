@@ -56,6 +56,8 @@ class ProteinEmbeddingModel(nn.Module):
         protein_rnn = protein_rnn.index_select(1, protein_unsort)  # [batch_size * proteins_per, max_protein_len]
         print(protein_rnn.shape)
         protein_rnn = protein_rnn.reshape(self.config.max_len, batch_size, proteins_per, -1)
+        print(protein_rnn.shape)
         protein_maxpool = torch.max(protein_rnn, 0)[0]  # [batch_size, embed_size]
+        print(protein_maxpool.shape)
 
         return protein_maxpool
