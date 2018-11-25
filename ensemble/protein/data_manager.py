@@ -15,7 +15,7 @@ class ProteinDataManager(DataManager):
         self.max_len = max_len
         self.vocab = vocab.Vocab()
 
-        with open('/data/data_targetProtein/train_target_seq.pkl', 'rb') as infile:
+        with open('/data/data_targetProteins/train_target_seq.pkl', 'rb') as infile:
             dbid_to_seqs = pickle.load(infile)
         train_sents = [[self.vocab.numberize_sentence(seq) for seq in dbid_to_seqs[dbid]] for dbid in self.train_dbids]
         self.train_sents_tensor, self.train_sents_len, self.train_max_proteins = self.get_sents_tensor(train_sents)

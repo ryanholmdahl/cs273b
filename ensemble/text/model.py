@@ -1,6 +1,5 @@
 from src.model.text_model import TextEmbeddingModel
 from src.utils import dotdict
-from src.dataman.text_datamanager import TextDataManager
 import torch
 
 
@@ -31,10 +30,6 @@ CONFIG = dotdict({
         'mlp_hidden_size_list': [32, 32],
         'cuda': torch.cuda.is_available(),
     })
-
-
-def get_data_manager():
-    return TextDataManager(CONFIG)
 
 
 def load_text_models(n_words):
