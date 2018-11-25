@@ -20,7 +20,7 @@ CONFIG = dotdict({
         'hidden_size': 32,  #
         'lstm_layer': 1,  #
         'bidirectional': False,  #
-        'aa_embed_size': 50,  #
+        'embedding_size': 50,  #
         'fix_emb_glove': True,  #
         'fix_emb_other': True,  #
         'dp_ratio': 0.3,  #

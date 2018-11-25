@@ -36,7 +36,7 @@ class ProteinEmbeddingModel(nn.Module):
     def __init__(self, config):
         super(ProteinEmbeddingModel, self).__init__()
         self.config = config
-        self.aa_embed = nn.Embedding(config.n_embed, config.aa_embed_size, padding_idx=vocab.PAD_token)
+        self.aa_embed = nn.Embedding(config.n_embed, config.embedding_size, padding_idx=vocab.PAD_token)
         self.encoder = RNNEncoder(config)
 
     def forward(
