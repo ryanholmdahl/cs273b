@@ -77,10 +77,12 @@ class ProteinDataManager(DataManager):
                 self.use_cuda)
 
     def sample_train_batch(self, dbids):
-        return self.sample_batch(dbids, self.train_dbid_to_idx, self.train_sents_tensor, self.train_sents_len)
+        return self.sample_batch(dbids, self.train_dbid_to_idx, self.train_sents_tensor, self.train_sents_len,
+                                 self.train_max_proteins)
 
     def sample_dev_batch(self, dbids):
-        return self.sample_batch(dbids, self.dev_dbid_to_idx, self.dev_sents_tensor, self.dev_sents_len)
+        return self.sample_batch(dbids, self.dev_dbid_to_idx, self.dev_sents_tensor, self.dev_sents_len,
+                                 self.dev_max_proteins)
 
     def sample_test_batch(self, dbids):
         return self.sample_batch(dbids, self.test_dbid_to_idx, self.test_sents_tensor, self.test_sents_len)
