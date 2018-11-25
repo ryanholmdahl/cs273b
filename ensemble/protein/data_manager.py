@@ -34,6 +34,9 @@ class ProteinDataManager(DataManager):
     def get_sents_tensor(self, sents_num):
         """ sents_num: list of lists of word ids """
         num_dbids = len(sents_num)
+        print(len(sents_num))
+        print(sents_num[0])
+        print([len(s) for s in sents_num])
         max_num_proteins = max([len(protein_seqs) for protein_seqs in sents_num])
         r_tensor = torch.LongTensor(num_dbids * max_num_proteins, self.max_len)
         r_tensor.fill_(vocab.PAD_token)
