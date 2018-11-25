@@ -28,7 +28,7 @@ class ProteinDataManager(DataManager):
         print('ProteinDataManager initialized.')
 
     def connect_to_submodule(self, submodule):
-        nn.init.xavier_normal_(submodule.glove_embed.weight)
+        nn.init.xavier_normal_(submodule.aa_embed.weight)
         self.embed = submodule.aa_embed
 
     def get_sents_tensor(self, sents_num):
