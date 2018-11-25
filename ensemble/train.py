@@ -32,10 +32,12 @@ def _load_data_manager(cuda):
             ProteinDataManager, [
                 50,
             ],
+        ),
+        (
             TextDataManager, [
                 300, 50,
             ],
-        ),
+        )
     ])
 
 
