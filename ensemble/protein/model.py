@@ -31,4 +31,5 @@ CONFIG = dotdict({
 
 def load_protein_models(n_words):
     CONFIG.n_embed = n_words
-    return ProteinEmbeddingModel(CONFIG)
+    print(n_words)
+    return [ProteinEmbeddingModel(CONFIG)]
