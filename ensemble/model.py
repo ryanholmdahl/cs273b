@@ -17,7 +17,7 @@ class EnsembleModel(nn.Module):
             ))
             prev_dim = hidden_dim
         fcs.append(nn.Linear(prev_dim, output_dim))
-        self.fc = nn.Sequential(*fcs)
+        self.fc = nn.Sequential(nn.Dropout(dropout), *fcs)
 
         for i, submodule in enumerate(self.submodules):
             self.add_module('submodule{}'.format(i), submodule)
