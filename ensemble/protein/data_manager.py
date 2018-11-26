@@ -90,4 +90,5 @@ class ProteinDataManager(DataManager):
                                  self.dev_max_proteins)
 
     def sample_test_batch(self, dbids):
-        return self.sample_batch(dbids, self.test_dbid_to_idx, self.test_sents_tensor, self.test_sents_len)
+        return self.sample_batch(dbids, self.test_dbid_to_idx, self.test_sents_tensor, self.test_sents_len,
+                                 self.test_max_proteins)
