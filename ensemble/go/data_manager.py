@@ -18,6 +18,8 @@ class GoDataManager(DataManager):
             dbid_to_gos = pickle.load(infile)
         with open('/data/data_targetProteins/test_target_go.pkl', 'rb') as infile:
             dbid_to_gos.update(pickle.load(infile))
+        print(go_to_idx)
+        eixt()
         self.num_terms = len(go_to_idx)
         self.train_gos = [set(go_to_idx[go] for go in dbid_to_gos[dbid]) for dbid in self.train_dbids]
         self.dev_gos = [set(go_to_idx[go] for go in dbid_to_gos[dbid]) for dbid in self.dev_dbids]
