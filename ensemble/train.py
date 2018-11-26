@@ -29,16 +29,16 @@ def _parse_args():
 
 def _load_data_manager(cuda):
     return EnsembleDataManager(cuda, 800, [
-        (
-            ProteinDataManager, [
-                100,
-            ],
-        ),
         # (
-        #     TextDataManager, [
-        #         300, 50,
+        #     ProteinDataManager, [
+        #         100,
         #     ],
         # ),
+        (
+            TextDataManager, [
+                300, 50,
+            ],
+        ),
         # (
         #     GoDataManager, []
         # ),
