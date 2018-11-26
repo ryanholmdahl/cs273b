@@ -9,7 +9,7 @@ CONFIG = dotdict({
         'learning_rate_decay': 0.9,
         'weight_decay': 5e-4,
         'balance_loss': False,
-        'max_len': 50,
+        'max_len': 100,
         'epochs': 50,
         'batch_size': 100,
         'batches_per_epoch': 100,
