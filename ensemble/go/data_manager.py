@@ -33,9 +33,10 @@ class GoDataManager(DataManager):
         idx = [dbid_to_idx[dbid] for dbid in dbids]
 
         if self.use_cuda:
-            return torch.cuda.FloatTensor([[1 if g in go_list[i] else 0 for g in range(self.num_terms)] for i in idx])
+            return (torch.cuda.FloatTensor([[1 if g in go_list[i] else 0 for g in range(self.num_terms)] for i in
+                                            idx]), )
         else:
-            return torch.FloatTensor([[1 if g in go_list[i] else 0 for g in range(self.num_terms)] for i in idx])
+            return (torch.FloatTensor([[1 if g in go_list[i] else 0 for g in range(self.num_terms)] for i in idx]), )
 
     def sample_train_batch(self, dbids):
         return self.sample_batch(dbids, self.train_dbid_to_idx, self.train_gos)
