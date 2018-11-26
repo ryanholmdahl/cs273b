@@ -100,10 +100,10 @@ def _train(data_manager, model):
                 )
             bar.next()
 
-        dev_inputs, targets = data_manager.sample_dev_batch(121)
+        dev_inputs, targets = data_manager.sample_test_batch(154)
         logits = model.forward(dev_inputs)
-        loss = criterion(logits.reshape(-1), targets.reshape(-1))
-        dev_losses.update(loss.item(), 121)
+        # loss = criterion(logits.reshape(-1), targets.reshape(-1))
+        # dev_losses.update(loss.item(), 121)
         (batch_p_micro,
          batch_r_micro,
          batch_f_micro,
@@ -115,32 +115,32 @@ def _train(data_manager, model):
          batch_mAP_micro,
          batch_mAP_macro,
          batch_acc) = compute_metrics(logit=logits, target=targets)
-        p_macro.update(batch_p_macro, 121)
-        p_micro.update(batch_p_micro, 121)
-        r_macro.update(batch_r_macro, 121)
-        r_micro.update(batch_r_micro, 121)
-        f_macro.update(batch_f_macro, 121)
-        f_micro.update(batch_f_micro, 121)
-        s_macro.update(batch_s_macro, 121)
-        mAP_micro.update(batch_mAP_micro, 121)
-        mAP_macro.update(batch_mAP_macro, 121)
-        acc.update(batch_acc, 121)
+        # p_macro.update(batch_p_macro, 121)
+        # p_micro.update(batch_p_micro, 121)
+        # r_macro.update(batch_r_macro, 121)
+        # r_micro.update(batch_r_micro, 121)
+        # f_macro.update(batch_f_macro, 121)
+        # f_micro.update(batch_f_micro, 121)
+        # s_macro.update(batch_s_macro, 121)
+        # mAP_micro.update(batch_mAP_micro, 121)
+        # mAP_macro.update(batch_mAP_macro, 121)
+        # acc.update(batch_acc, 121)
         if batch_mAP_macro > best_mAP_macro:
             best_mAP_macro = batch_mAP_macro
-            test_inputs, targets = data_manager.sample_test_batch(154)
-            logits = model.forward(test_inputs)
-            (batch_p_micro,
-             batch_r_micro,
-             batch_f_micro,
-             batch_s_micro,
-             batch_p_macro,
-             batch_r_macro,
-             batch_f_macro,
-             batch_s_macro,
-             batch_mAP_micro,
-             batch_mAP_macro,
-             batch_acc) = compute_metrics(logit=logits, target=targets)
-            mAP_macro_test = batch_mAP_macro
+            # test_inputs, targets = data_manager.sample_test_batch(154)
+            # logits = model.forward(test_inputs)
+            # (batch_p_micro,
+            #  batch_r_micro,
+            #  batch_f_micro,
+            #  batch_s_micro,
+            #  batch_p_macro,
+            #  batch_r_macro,
+            #  batch_f_macro,
+            #  batch_s_macro,
+            #  batch_mAP_micro,
+            #  batch_mAP_macro,
+            #  batch_acc) = compute_metrics(logit=logits, target=targets)
+            # mAP_macro_test = batch_mAP_macro
 
     return model
 
