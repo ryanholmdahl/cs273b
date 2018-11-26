@@ -21,7 +21,8 @@ class GoDataManager(DataManager):
         self.num_terms = len(go_to_idx)
         self.train_gos = [set(go_to_idx[go] for gos in dbid_to_gos[dbid] for go in gos) for dbid in self.train_dbids]
         self.dev_gos = [set(go_to_idx[go] for gos in dbid_to_gos[dbid] for go in gos) for dbid in self.dev_dbids]
-        self.test_gos = [set(go_to_idx[go] for gos in dbid_to_gos[dbid] for go in gos) for dbid in self.test_dbids]
+        self.test_gos = [set(go_to_idx[go] if go in go_to_idx else go_to_idx['UNK']
+                             for gos in dbid_to_gos[dbid] for go in gos) for dbid in self.test_dbids]
 
         print('GoDataManager initialized.')
 
