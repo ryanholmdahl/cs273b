@@ -17,12 +17,14 @@ class ProteinDataManager(DataManager):
 
         with open('/data/data_targetProteins/train_target_seq.pkl', 'rb') as infile:
             dbid_to_seqs = pickle.load(infile)
+        with open('/data/data_targetProteins/test_target_seq.pkl', 'rb') as infile:
+            dbid_to_seqs.update(pickle.load(infile))
         train_sents = [[self.vocab.numberize_sentence(seq) for seq in dbid_to_seqs[dbid]] for dbid in self.train_dbids]
         self.train_sents_tensor, self.train_sents_len, self.train_max_proteins = self.get_sents_tensor(train_sents)
         dev_sents = [[self.vocab.numberize_sentence(seq) for seq in dbid_to_seqs[dbid]] for dbid in self.dev_dbids]
         self.dev_sents_tensor, self.dev_sents_len, self.dev_max_proteins = self.get_sents_tensor(dev_sents)
-        # test_sents = [[self.vocab.numberize_sentence(seq) for seq in dbid_to_seqs[dbid]] for dbid in self.test_dbids]
-        # self.test_sents_tensor, self.test_sents_len, self.test_max_proteins = self.get_sents_tensor(test_sents)
+        test_sents = [[self.vocab.numberize_sentence(seq) for seq in dbid_to_seqs[dbid]] for dbid in self.test_dbids]
+        self.test_sents_tensor, self.test_sents_len, self.test_max_proteins = self.get_sents_tensor(test_sents)
 
         self.embed = None
         print('ProteinDataManager initialized.')
