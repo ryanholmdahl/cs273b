@@ -31,7 +31,7 @@ def _load_data_manager(cuda):
     return EnsembleDataManager(cuda, 800, [
         (
             ProteinDataManager, [
-                50,
+                100,
             ],
         ),
         (

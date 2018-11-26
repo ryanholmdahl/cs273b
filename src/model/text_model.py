@@ -181,6 +181,9 @@ class TextEmbeddingModel(nn.Module):
             self.other_embed.weight.requires_grad = False
 
         self.encoder = RNNEncoder(config)
+        self.encoder_ind = RNNEncoder(config)
+        self.encoder_des = RNNEncoder(config)
+        self.encoder_act = RNNEncoder(config)
 
         self.dropout = nn.Dropout(p=config.dp_ratio)
         self.relu = nn.ReLU()
@@ -207,7 +210,7 @@ class TextEmbeddingModel(nn.Module):
         cuda
     ):
         encoder_init_hidden = self.encoder.initHidden(batch_size, cuda)
-        des_rnn = self.encoder(
+        des_rnn = self.encoder_des(
                 inputs=des_embed,
                 hidden=encoder_init_hidden,
             )
@@ -217,7 +220,7 @@ class TextEmbeddingModel(nn.Module):
         # des_maxpool = des_maxpool.index_select(1, des_unsort)
         des_rnn = des_rnn.index_select(1, des_unsort)
 
-        ind_rnn = self.encoder(
+        ind_rnn = self.encoder_ind(
             inputs=ind_embed,
             hidden=encoder_init_hidden,
         )
@@ -227,7 +230,7 @@ class TextEmbeddingModel(nn.Module):
         # ind_maxpool = ind_maxpool.index_select(1, ind_unsort)
         ind_rnn = ind_rnn.index_select(1, ind_unsort)
 
-        act_rnn = self.encoder(
+        act_rnn = self.encoder_act(
             inputs=act_embed,
             hidden=encoder_init_hidden,
         )
