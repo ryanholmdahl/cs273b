@@ -29,16 +29,16 @@ def _parse_args():
 
 def _load_data_manager(cuda):
     return EnsembleDataManager(cuda, 800, [
-        (
-            ProteinDataManager, [
-                50,
-            ],
-        ),
-        (
-            TextDataManager, [
-                300, 50,
-            ],
-        ),
+        # (
+        #     ProteinDataManager, [
+        #         50,
+        #     ],
+        # ),
+        # (
+        #     TextDataManager, [
+        #         300, 50,
+        #     ],
+        # ),
         (
             GoDataManager, []
         ),
@@ -47,14 +47,14 @@ def _load_data_manager(cuda):
 
 def _load_submodules(data_manager):
     return (
-        load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
-        load_text_models(data_manager.submodule_managers[1].vocab.n_words) +
-        load_go_models(data_manager.submodule_managers[2].num_terms)
+        # load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
+        # load_text_models(data_manager.submodule_managers[1].vocab.n_words) +
+        load_go_models(data_manager.submodule_managers[0].num_terms)
     )
 
 
 def _train(data_manager, model):
-    bar = Bar('Processing', max=100*len(data_manager.train_dbids)/64)
+    bar = Bar('Processing', max=100*len(data_manager.train_dbids)/128)
     train_losses = AverageMeter()
     dev_losses = AverageMeter()
     p_micro = AverageMeter()
@@ -80,11 +80,11 @@ def _train(data_manager, model):
     print(len(list(model.parameters())))
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     for epoch in range(100):
-        for i in range(0, len(data_manager.train_dbids), 64):
-            train_inputs, targets = data_manager.sample_train_batch(64)
+        for i in range(0, len(data_manager.train_dbids), 128):
+            train_inputs, targets = data_manager.sample_train_batch(128)
             logits = model.forward(train_inputs)
             loss = criterion(logits.reshape(-1), targets.reshape(-1))
-            train_losses.update(loss.item(), 64)
+            train_losses.update(loss.item(), 128)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
