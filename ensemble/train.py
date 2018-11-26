@@ -1,9 +1,11 @@
 from ensemble.model import EnsembleModel
 from ensemble.text.model import load_text_models
 from ensemble.protein.model import load_protein_models
+from ensemble.go.model import load_go_models
 from ensemble.data_manager import EnsembleDataManager
 from ensemble.text.data_manager import TextDataManager
 from ensemble.protein.data_manager import ProteinDataManager
+from ensemble.go.data_manager import GoDataManager
 import argparse
 import torch.nn as nn
 import torch.optim as optim
@@ -36,6 +38,9 @@ def _load_data_manager(cuda):
             TextDataManager, [
                 300, 50,
             ],
+        ),
+        (
+            GoDataManager, []
         )
     ])
 
@@ -43,7 +48,8 @@ def _load_data_manager(cuda):
 def _load_submodules(data_manager):
     return (
         load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
-        load_text_models(data_manager.submodule_managers[1].vocab.n_words)
+        load_text_models(data_manager.submodule_managers[1].vocab.n_words) +
+        load_go_models(data_manager.submodule_managers[2].num_terms)
     )
 
 
