@@ -47,8 +47,8 @@ def _load_data_manager(cuda):
 
 def _load_submodules(data_manager):
     return (
-        load_protein_models(data_manager.submodule_managers[0].vocab.n_words) #+
-        # load_text_models(data_manager.submodule_managers[1].vocab.n_words) #+
+        # load_protein_models(data_manager.submodule_managers[0].vocab.n_words) #+
+        load_text_models(data_manager.submodule_managers[0].vocab.n_words) #+
         # load_go_models(data_manager.submodule_managers[2].num_terms)
     )
 
