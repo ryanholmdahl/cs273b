@@ -210,7 +210,7 @@ class TextEmbeddingModel(nn.Module):
         cuda
     ):
         encoder_init_hidden = self.encoder.initHidden(batch_size, cuda)
-        des_rnn = self.encoder_des(
+        des_rnn = self.encoder(
                 inputs=des_embed,
                 hidden=encoder_init_hidden,
             )
@@ -220,7 +220,7 @@ class TextEmbeddingModel(nn.Module):
         # des_maxpool = des_maxpool.index_select(1, des_unsort)
         des_rnn = des_rnn.index_select(1, des_unsort)
 
-        ind_rnn = self.encoder_ind(
+        ind_rnn = self.encoder(
             inputs=ind_embed,
             hidden=encoder_init_hidden,
         )
@@ -230,7 +230,7 @@ class TextEmbeddingModel(nn.Module):
         # ind_maxpool = ind_maxpool.index_select(1, ind_unsort)
         ind_rnn = ind_rnn.index_select(1, ind_unsort)
 
-        act_rnn = self.encoder_act(
+        act_rnn = self.encoder(
             inputs=act_embed,
             hidden=encoder_init_hidden,
         )
