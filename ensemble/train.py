@@ -61,6 +61,7 @@ def _train(data_manager, model):
     mAP_micro = AverageMeter()
     mAP_macro = AverageMeter()
     best_mAP_macro = 0.
+    mAP_macro_test = 0.
     acc = AverageMeter()
     total_positive_labels = (
         data_manager.train_labels.sum() + data_manager.dev_labels.sum() + data_manager.test_labels.sum()
@@ -81,9 +82,9 @@ def _train(data_manager, model):
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-            bar.suffix = '({epoch}/{max_epochs}) | TLoss: {train_loss:.4f} | DLoss: {dev_loss:.4f} ' \
-                         '| Acc: {acc:.3f} | P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP mac: {mAP:.3f} ' \
-                         '| best mAP {mAP_best:.3f}' \
+            bar.suffix = '({epoch}/{max_epochs}) | TLoss: {train_loss:.3f} | DLoss: {dev_loss:.3f} ' \
+                         '| Acc: {acc:.3f} | P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP: {mAP:.3f} ' \
+                         '| dev mAP {mAP_best:.3f} | test mAP {mAP_test:.3f}' \
                 .format(
                         epoch=epoch,
                         max_epochs=100,
@@ -94,7 +95,8 @@ def _train(data_manager, model):
                         r=r_micro.avg,
                         f=f_micro.avg,
                         mAP=mAP_macro.avg,
-                        mAP_best=best_mAP_macro
+                        mAP_best=best_mAP_macro,
+                        mAP_test=mAP_macro_test
                 )
             bar.next()
 
@@ -123,7 +125,22 @@ def _train(data_manager, model):
         mAP_micro.update(batch_mAP_micro, 121)
         mAP_macro.update(batch_mAP_macro, 121)
         acc.update(batch_acc, 121)
-        best_mAP_macro = max(best_mAP_macro, batch_mAP_macro)
+        if batch_mAP_macro > best_mAP_macro:
+            best_mAP_macro = batch_mAP_macro
+            test_inputs, targets = data_manager.sample_test_batch(154)
+            logits = model.forward(test_inputs)
+            (batch_p_micro,
+             batch_r_micro,
+             batch_f_micro,
+             batch_s_micro,
+             batch_p_macro,
+             batch_r_macro,
+             batch_f_macro,
+             batch_s_macro,
+             batch_mAP_micro,
+             batch_mAP_macro,
+             batch_acc) = compute_metrics(logit=logits, target=targets)
+            mAP_macro_test = batch_mAP_macro
 
     return model
 
