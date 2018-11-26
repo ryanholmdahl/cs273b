@@ -78,7 +78,7 @@ def _train(data_manager, model):
     print(total_labels/total_positive_labels)
     criterion = nn.BCEWithLogitsLoss(pos_weight=total_labels/total_positive_labels)
     print(len(list(model.parameters())))
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
     for epoch in range(100):
         for i in range(0, len(data_manager.train_dbids), 128):
             train_inputs, targets = data_manager.sample_train_batch(128)

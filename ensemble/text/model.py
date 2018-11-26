@@ -19,7 +19,7 @@ CONFIG = dotdict({
         'test_batch_size': 154,
         'test_batches_per_epoch': 1,
         'hidden_size': 32,  #
-        'lstm_layer': 2,  #
+        'lstm_layer': 1,  #
         'bidirectional': False,  #
         'glove_embedding_size': 50,  #
         'other_embedding_size': 200,  #
