@@ -137,7 +137,7 @@ def _train(data_manager, model):
         mAP_macro.update(batch_mAP_macro, 121)
         acc.update(batch_acc, 121)
         if batch_mAP_micro > best_mAP_macro:
-            best_mAP_micro = batch_mAP_macro
+            best_mAP_macro = batch_mAP_micro
             test_inputs, targets = data_manager.sample_test_batch(154)
             logits = model.forward(test_inputs)
             (batch_p_micro,
