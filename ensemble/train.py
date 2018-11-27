@@ -14,8 +14,10 @@ from src.text_model_pipeline import compute_metrics
 from pytorch_classification.utils import AverageMeter, Bar
 
 
+# TODO: plots of AP by class
+# TODO: freeze embeddings
 # TODO: smaller/shuffled dev set?
-# TODO: try removing submodules
+# TODO: try removing text submodules
 # TODO: run more epochs
 # TODO: train mAP
 # TODO: true ensemble (no shared differentiability)
@@ -134,8 +136,8 @@ def _train(data_manager, model):
         mAP_micro.update(batch_mAP_micro, 121)
         mAP_macro.update(batch_mAP_macro, 121)
         acc.update(batch_acc, 121)
-        if batch_mAP_macro > best_mAP_macro:
-            best_mAP_macro = batch_mAP_macro
+        if batch_mAP_micro > best_mAP_macro:
+            best_mAP_micro = batch_mAP_macro
             test_inputs, targets = data_manager.sample_test_batch(154)
             logits = model.forward(test_inputs)
             (batch_p_micro,
@@ -149,7 +151,7 @@ def _train(data_manager, model):
              batch_mAP_micro,
              batch_mAP_macro,
              batch_acc) = compute_metrics(logit=logits, target=targets)
-            mAP_macro_test = batch_mAP_macro
+            mAP_macro_test = batch_mAP_micro
 
     return model
 
