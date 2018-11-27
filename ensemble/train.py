@@ -32,27 +32,27 @@ def _parse_args():
 
 def _load_data_manager(cuda):
     return EnsembleDataManager(cuda, 800, [
-        (
-            ProteinDataManager, [
-                100,
-            ],
-        ),
+        # (
+        #     ProteinDataManager, [
+        #         100,
+        #     ],
+        # ),
         # (
         #     TextDataManager, [
         #         300, 50,
         #     ],
         # ),
-        # (
-        #     GoDataManager, []
-        # ),
+        (
+            GoDataManager, []
+        ),
     ])
 
 
 def _load_submodules(data_manager):
     return (
-        load_protein_models(data_manager.submodule_managers[0].vocab.n_words) #+
+        # load_protein_models(data_manager.submodule_managers[0].vocab.n_words) #+
         # load_text_models(data_manager.submodule_managers[0].vocab.n_words) #+
-        # load_go_models(data_manager.submodule_managers[2].num_terms)
+        load_go_models(data_manager.submodule_managers[0].num_terms)
     )
 
 
