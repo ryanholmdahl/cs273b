@@ -188,6 +188,8 @@ class TextEmbeddingModel(nn.Module):
         self.dropout = nn.Dropout(p=config.dp_ratio)
         self.relu = nn.ReLU()
 
+        self.file_name = 'text.pt'
+
     def buh(self, lens):
         lens = lens - 1
         lens = lens.reshape(-1, 1, 1)

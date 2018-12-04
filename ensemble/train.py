@@ -13,6 +13,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch
 from src.text_model_pipeline import compute_metrics
+import os
 
 from pytorch_classification.utils import AverageMeter, Bar
 
@@ -205,11 +206,13 @@ def _main():
     if cuda:
         model = model.cuda()
     mAP_test = _train(data_manager, model, epochs, use_pos_weights, single_pos_weight)
-    torch.save(model.state_dict(), '{}_{}_{}_{}_{}_{}_{}.pt'.format(hiddens, dropout, embed_dims, embedders,
-                                                                    use_pos_weights, single_pos_weight, epochs))
-    with open('{}_{}_{}_{}_{}_{}_{}.pt'.format(hiddens, dropout, embed_dims, embedders,
-                                                                    use_pos_weights, single_pos_weight, epochs),
-              'wt') as outfile:
+    output_dir = '{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
+                                               single_pos_weight, epochs)
+    for submodule in submodules:
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
+        torch.save(submodule.state_dict(), os.path.join(output_dir, submodule.file_name))
+    with open(os.path.join(output_dir, 'map_test.txt'), 'wt') as outfile:
         print(mAP_test, file=outfile)
 
 

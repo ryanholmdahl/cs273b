@@ -38,6 +38,7 @@ class ProteinEmbeddingModel(nn.Module):
         self.config = config
         self.aa_embed = nn.Embedding(config.n_embed, config.embedding_size, padding_idx=vocab.PAD_token)
         self.encoder = RNNEncoder(config)
+        self.file_name = 'protein.pt'
 
     def forward(
         self,

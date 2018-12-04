@@ -11,6 +11,8 @@ class LiuEmbeddingModel(nn.Module):
             nn.Linear(128, embed_size)
         )
 
+        self.file_name = 'liu.pt'
+
     def forward(self, go_terms):
         # return go_terms
         return self.base(go_terms)
