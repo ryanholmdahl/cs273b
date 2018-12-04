@@ -46,6 +46,7 @@ class LiuDataManager(DataManager):
             self.train_features = np.hstack([self.train_features, train_arr])
             self.dev_features = np.hstack([self.dev_features, dev_arr])
             self.test_features = np.hstack([self.test_features, test_arr])
+        self.num_terms = self.train_features.shape[1]
         self.train_features = torch.FloatTensor(self.train_features)
         self.dev_features = torch.FloatTensor(self.dev_features)
         self.test_features = torch.FloatTensor(self.dev_features)
