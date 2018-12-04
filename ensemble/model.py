@@ -26,4 +26,4 @@ class EnsembleModel(nn.Module):
         embeds = [submodule(*submodule_input)
                   for submodule, submodule_input in zip(self.submodules, submodule_inputs)]
         embed = torch.cat(embeds, dim=1)
-        return torch.sigmoid(self.fc(embed))
+        return self.fc(embed)
