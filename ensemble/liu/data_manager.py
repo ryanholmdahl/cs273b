@@ -49,12 +49,13 @@ class LiuDataManager(DataManager):
         self.num_terms = self.train_features.shape[1]
         self.train_features = torch.FloatTensor(self.train_features)
         self.dev_features = torch.FloatTensor(self.dev_features)
-        self.test_features = torch.FloatTensor(self.dev_features)
+        self.test_features = torch.FloatTensor(self.test_features)
         if use_cuda:
             self.train_features = self.train_features.cuda()
             self.dev_features = self.dev_features.cuda()
             self.test_features = self.test_features.cuda()
         self.use_cuda = use_cuda
+        print(self.train_features.shape, self.dev_features.shape, self.test_features.shape)
 
         print('LiuDataManager initialized.')
 
