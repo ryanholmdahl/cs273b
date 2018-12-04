@@ -63,9 +63,7 @@ class LiuDataManager(DataManager):
     def sample_batch(self, dbids, dbid_to_idx, feature_tensor):
         idx = [dbid_to_idx[dbid] for dbid in dbids]
 
-        t = feature_tensor[idx, :]
-        print(len(t))
-        return t
+        return torch.FloatTensor(feature_tensor[idx, :])
 
     def sample_train_batch(self, dbids):
         return self.sample_batch(dbids, self.train_dbid_to_idx, self.train_features)
