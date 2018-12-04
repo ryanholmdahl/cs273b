@@ -170,7 +170,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(128 * 6, hiddens, 5579, submodules, 0.)
+    model = EnsembleModel(64 * 6, hiddens, 5579, submodules, 0.)
     if cuda:
         model = model.cuda()
     _train(data_manager, model)

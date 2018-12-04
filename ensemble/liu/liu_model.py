@@ -8,7 +8,7 @@ class LiuEmbeddingModel(nn.Module):
             nn.Linear(num_terms, 128),
             # nn.BatchNorm1d(128),
             nn.Sigmoid(),
-            nn.Linear(128, 128)
+            nn.Linear(128, 64)
         )
 
     def forward(self, go_terms):
