@@ -19,9 +19,11 @@ class EnsembleModel(nn.Module):
         fcs.append(nn.Linear(prev_dim, output_dim))
         self.fc = nn.Sequential(nn.Dropout(dropout), *fcs)
 
-        if not true_ensemble:
-            for i, submodule in enumerate(self.submodules):
-                self.add_module('submodule{}'.format(i), submodule)
+        for i, submodule in enumerate(self.submodules):
+            self.add_module('submodule{}'.format(i), submodule)
+            if true_ensemble:
+                for param in submodule.parameters():
+                    param.requires_grad = False
 
     def forward(self, submodule_inputs):
         embeds = [submodule(*submodule_input)
