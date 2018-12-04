@@ -114,7 +114,7 @@ def _train(data_manager, model):
 
         dev_inputs, targets = data_manager.sample_dev_batch(71)
         logits = model.forward(dev_inputs)
-        loss = criterion(logits.reshape(-1), targets.reshape(-1))
+        loss = criterion(logits, targets)
         dev_losses.update(loss.item(), 71)
         (batch_p_micro,
          batch_r_micro,
