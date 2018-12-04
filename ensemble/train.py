@@ -32,7 +32,7 @@ def _parse_args():
 
 
 def _load_data_manager(cuda):
-    return EnsembleDataManager(cuda, 800, [
+    return EnsembleDataManager(cuda, 700, [
         # (
         #     ProteinDataManager, [
         #         100,

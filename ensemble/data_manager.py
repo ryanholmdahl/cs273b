@@ -64,6 +64,7 @@ class EnsembleDataManager:
         self.train_labels = torch.Tensor(train_label_matrix[:train_num_drugs, :])
         self.dev_labels = torch.Tensor(train_label_matrix[train_num_drugs:, :])
         self.test_labels = torch.Tensor(test_label_matrix)
+        print(self.train_labels.shape, self.dev_labels.shape, self.test_labels.shape)
 
         # with open(constant.TRAIN_LABELS, "rb") as fd:
         #     train_label_dict = pickle.load(fd)
