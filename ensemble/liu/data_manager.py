@@ -54,6 +54,7 @@ class LiuDataManager(DataManager):
             self.train_features = self.train_features.cuda()
             self.dev_features = self.dev_features.cuda()
             self.test_features = self.test_features.cuda()
+        self.use_cuda = use_cuda
 
         print('LiuDataManager initialized.')
 
@@ -63,7 +64,10 @@ class LiuDataManager(DataManager):
     def sample_batch(self, dbids, dbid_to_idx, feature_tensor):
         idx = [dbid_to_idx[dbid] for dbid in dbids]
 
-        return torch.FloatTensor(feature_tensor[idx, :])
+        if self.use_cuda:
+            return torch.cuda.FloatTensor(feature_tensor[idx, :])
+        else:
+            return torch.FloatTensor(feature_tensor[idx, :])
 
     def sample_train_batch(self, dbids):
         return self.sample_batch(dbids, self.train_dbid_to_idx, self.train_features)
