@@ -97,6 +97,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
     mAP_macro = AverageMeter()
     best_mAP_micro_dev = 0.
     min_dev_loss = 1000.
+    last_update_epoch = 0
     mAP_micro_test = 0.
     acc = AverageMeter()
     if use_pos_weight:
@@ -169,6 +170,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
         mAP_macro.update(batch_mAP_macro, 71)
         acc.update(batch_acc, 71)
         if best_mAP_micro_dev < batch_mAP_micro:  # batch_mAP_micro > best_mAP_micro_dev:
+            last_update_epoch = epoch
             min_dev_loss = dev_losses.avg
             best_mAP_micro_dev = batch_mAP_micro
             test_inputs, targets = data_manager.sample_test_batch(309)
@@ -185,6 +187,8 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
              batch_mAP_macro,
              batch_acc) = compute_metrics(logit=logits, target=targets)
             mAP_micro_test = batch_mAP_micro
+        if epoch - last_update_epoch >= 50:
+            break
 
     return model
 
