@@ -82,7 +82,7 @@ def _train(data_manager, model):
         (1. - data_manager.train_labels).sum(dim=0)
     )
     print(total_negative_labels.shape)
-    criterion = nn.BCEWithLogitsLoss(pos_weight=(total_negative_labels/total_positive_labels).clamp(min=0.01, max=100))
+    criterion = nn.BCEWithLogitsLoss()
     print(len(list(model.parameters())))
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     for epoch in range(100):
