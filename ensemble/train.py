@@ -61,7 +61,7 @@ def _load_data_manager(cuda, embedder_names):
         embedders.append((
             LiuDataManager, []
         ))
-    return EnsembleDataManager(cuda, 700, embedder_names)
+    return EnsembleDataManager(cuda, 700, embedders)
 
 
 def _load_submodules(data_manager, embedder_names, embed_size):
