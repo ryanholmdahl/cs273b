@@ -21,12 +21,13 @@ def compute_metrics(logit, target):
         p_macro, r_macro, f_macro, s_macro \
             = sklearn.metrics.precision_recall_fscore_support(y_true=target, y_pred=pred, average='macro')
         # mAP_macro = sklearn.metrics.average_precision_score(y_true=target, y_score=prob, average='macro')
-        aps = []
-        for se in range(len(target[0])):
-            ap = sklearn.metrics.average_precision_score(target[:, se].reshape((-1)), prob[:, se].reshape((-1)))
-            if ap >= 0:
-                aps.append(ap)
-        mAP_macro = sum(aps) / len(aps)
+        # aps = []
+        # for se in range(len(target[0])):
+        #     ap = sklearn.metrics.average_precision_score(target[:, se].reshape((-1)), prob[:, se].reshape((-1)))
+        #     if ap >= 0:
+        #         aps.append(ap)
+        # mAP_macro = sum(aps) / len(aps)
+        mAP_micro = 0.
         mAP_micro = sklearn.metrics.average_precision_score(y_true=target, y_score=prob, average='micro')
 
     if not s_macro:
