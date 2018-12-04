@@ -14,12 +14,10 @@ from src.text_model_pipeline import compute_metrics
 from pytorch_classification.utils import AverageMeter, Bar
 
 
-# TODO: change BCE pos weight to be a vector
 # TODO: freeze embeddings
 # TODO: try removing text submodules
 # TODO: true ensemble (no shared differentiability)
 # TODO: run more epochs
-# TODO: train mAP
 # TODO: load checkpoints
 
 
@@ -165,7 +163,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(32 * 5, hiddens, 5579, submodules, 0.5)
+    model = EnsembleModel(64 * 5, hiddens, 5579, submodules, 0.5)
     if cuda:
         model = model.cuda()
     _train(data_manager, model)
