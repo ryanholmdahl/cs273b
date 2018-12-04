@@ -137,7 +137,7 @@ def _train(data_manager, model):
         acc.update(batch_acc, 71)
         if batch_mAP_micro > best_mAP_micro_dev:
             best_mAP_micro_dev = batch_mAP_micro
-            test_inputs, targets = data_manager.sample_test_batch(304)
+            test_inputs, targets = data_manager.sample_test_batch(309)
             logits = model.forward(test_inputs)
             (batch_p_micro,
              batch_r_micro,
@@ -162,7 +162,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(32 * 3, hiddens, 5579, submodules, 0.25)
+    model = EnsembleModel(32 * 3, hiddens, 5579, submodules, 0.5)
     if cuda:
         model = model.cuda()
     _train(data_manager, model)
