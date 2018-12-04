@@ -2,12 +2,12 @@ from torch import nn
 
 
 class GoEmbeddingModel(nn.Module):
-    def __init__(self, num_terms):
+    def __init__(self, num_terms, embed_size):
         super(GoEmbeddingModel, self).__init__()
         self.base = nn.Sequential(
             nn.Linear(num_terms, 128),
             nn.ReLU(),
-            nn.Linear(128, 128)
+            nn.Linear(128, embed_size)
         )
 
     def forward(self, go_terms):

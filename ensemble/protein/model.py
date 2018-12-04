@@ -28,7 +28,7 @@ CONFIG = dotdict({
     })
 
 
-def load_protein_models(n_words):
+def load_protein_models(n_words, embed_size):
     CONFIG.n_embed = n_words
-    print(n_words)
+    CONFIG.hidden_size = embed_size
     return [ProteinEmbeddingModel(CONFIG)]

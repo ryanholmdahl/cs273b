@@ -31,7 +31,8 @@ CONFIG = dotdict({
     })
 
 
-def load_text_models(n_words):
+def load_text_models(n_words, embed_size):
     CONFIG.n_embed = n_words
     CONFIG.embedding_size = CONFIG.glove_embedding_size + CONFIG.other_embedding_size
+    CONFIG.hidden_size = embed_size
     return [TextEmbeddingModel(CONFIG)]

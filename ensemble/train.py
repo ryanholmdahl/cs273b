@@ -11,6 +11,7 @@ from ensemble.liu.data_manager import LiuDataManager
 import argparse
 import torch.nn as nn
 import torch.optim as optim
+import torch
 from src.text_model_pipeline import compute_metrics
 
 from pytorch_classification.utils import AverageMeter, Bar
@@ -27,42 +28,62 @@ def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cuda', action='store_true')
     parser.add_argument('--hiddens', nargs='+', type=int)
+    parser.add_argument('--dropout', type=float, default=0.2)
+    parser.add_argument('--embed_dims', type=int, default=32)
+    parser.add_argument('--embedders', nargs='+')
+    parser.add_argument('--use_pos_weight', action='store_true')
+    parser.add_argument('--single_pos_weight', action='store_true')
+    parser.add_argument('--epochs', type=int)
     args = parser.parse_args()
-    return args.cuda, args.hiddens
+    return args.cuda, args.hiddens, args.dropout, args.embed_dims, args.embedders, args.use_pos_weights, \
+           args.single_pos_weight, args.epochs
 
 
-def _load_data_manager(cuda):
-    return EnsembleDataManager(cuda, 700, [
-        (
+def _load_data_manager(cuda, embedder_names):
+    embedders = []
+    if 'protein' in embedder_names:
+        embedders.append((
             ProteinDataManager, [
                 100,
-            ],
-        ),
-        (
+            ]
+        ))
+    if 'text' in embedder_names:
+        embedders.append((
             TextDataManager, [
                 300, 50,
-            ],
-        ),
-        (
+            ]
+        ))
+    if 'go' in embedder_names:
+        embedders.append((
             GoDataManager, []
-        ),
-        (
+        ))
+    if 'liu' in embedder_names:
+        embedders.append((
             LiuDataManager, []
-        )
-    ])
+        ))
+    return EnsembleDataManager(cuda, 700, embedder_names)
 
 
-def _load_submodules(data_manager):
-    return (
-        load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
-        load_text_models(data_manager.submodule_managers[1].vocab.n_words) +
-        load_go_models(data_manager.submodule_managers[2].num_terms) +
-        load_liu_models(data_manager.submodule_managers[3].num_terms)
-    )
+def _load_submodules(data_manager, embedder_names, embed_size):
+    manager_idx = 0
+    models = []
+    if 'protein' in embedder_names:
+        models += load_protein_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size)
+        manager_idx += 1
+    if 'text' in embedder_names:
+        models += load_text_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size)
+        manager_idx += 1
+    if 'go' in embedder_names:
+        models += load_go_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size)
+        manager_idx += 1
+    if 'liu' in embedder_names:
+        models += load_liu_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size)
+        manager_idx += 1
+    return models
 
 
-def _train(data_manager, model):
-    bar = Bar('Processing', max=100*len(data_manager.train_dbids)/128)
+def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
+    bar = Bar('Processing', max=epochs*len(data_manager.train_dbids)/128)
     train_losses = AverageMeter()
     dev_losses = AverageMeter()
     p_micro = AverageMeter()
@@ -77,20 +98,25 @@ def _train(data_manager, model):
     best_mAP_micro_dev = 0.
     min_dev_loss = 1000.
     mAP_micro_test = 0.
-    max_mAP_test = 0.
     acc = AverageMeter()
-    total_positive_labels = (
-        data_manager.train_labels.sum(dim=0)
-    )
-    print(total_positive_labels.shape)
-    total_negative_labels = (
-        (1. - data_manager.train_labels).sum(dim=0)
-    )
-    print(total_negative_labels.shape)
-    criterion = nn.BCEWithLogitsLoss()
+    if use_pos_weight:
+        total_positive_labels = (
+            data_manager.train_labels.sum(dim=0)
+        )
+        total_negative_labels = (
+            (1. - data_manager.train_labels).sum(dim=0)
+        )
+        if single_pos_weight:
+            pos_weight = (total_negative_labels.sum() / total_positive_labels.sum()) * torch.ones(
+                *total_negative_labels.shape, device=total_negative_labels.device)
+        else:
+            pos_weight = (total_negative_labels / total_positive_labels).clamp(min=0.05, max=20)
+        criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    else:
+        criterion = nn.BCEWithLogitsLoss()
     print(len(list(model.parameters())))
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    for epoch in range(1000):
+    for epoch in range(epochs):
         for i in range(0, len(data_manager.train_dbids), 128):
             train_inputs, targets = data_manager.sample_train_batch(128)
             logits = model.forward(train_inputs)
@@ -164,16 +190,17 @@ def _train(data_manager, model):
 
 
 def _main():
-    cuda, hiddens = _parse_args()
+    cuda, hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs = _parse_args()
     print('Loading data manager...')
-    data_manager = _load_data_manager(cuda)
+    data_manager = _load_data_manager(cuda, embedders)
     print('Data manager loaded.')
-    submodules = _load_submodules(data_manager)
+    submodules = _load_submodules(data_manager, embedders, embed_dims)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(128 * 6, hiddens, 5579, submodules, 0.)
+    model = EnsembleModel(embed_dims * (len(embedders) + 2 if 'text' in embedders else 0), hiddens, 5579, submodules,
+                          dropout)
     if cuda:
         model = model.cuda()
-    _train(data_manager, model)
+    _train(data_manager, model, epochs, use_pos_weights, single_pos_weight)
 
 
 if __name__ == '__main__':
