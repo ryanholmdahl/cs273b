@@ -28,12 +28,12 @@ class LiuDataManager(DataManager):
         self.train_features = np.zeros((len(train_dbids), 0))
         self.dev_features = np.zeros((len(dev_dbids), 0))
         self.test_features = np.zeros((len(test_dbids), 0))
-        for fname in os.listdir('data/munoz/munoz2017_sider4_data'):
+        for fname in os.listdir('/data/munoz2017_sider4_data/original'):
             if fname.startswith('test') or 'sideEffect' in fname:
                 continue
-            d_train = pickle.load(open('data/munoz2017_sider4_data/original/{}'.format(fname), 'rb'))
+            d_train = pickle.load(open('/data/munoz2017_sider4_data/original/{}'.format(fname), 'rb'))
             d_test = pickle.load(
-                open('data/munoz2017_sider4_data/original/{}'.format(fname.replace('train', 'test')), 'rb'))
+                open('/data/munoz2017_sider4_data/original/{}'.format(fname.replace('train', 'test')), 'rb'))
             train_arr = []
             dev_arr = []
             test_arr = []
