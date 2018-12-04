@@ -7,7 +7,7 @@ class GoEmbeddingModel(nn.Module):
         self.base = nn.Sequential(
             nn.Linear(num_terms, 128),
             nn.ReLU(),
-            nn.Linear(128, 64)
+            nn.Linear(128, 128)
         )
 
     def forward(self, go_terms):

@@ -87,7 +87,7 @@ def _train(data_manager, model):
         (1. - data_manager.train_labels).sum(dim=0)
     )
     print(total_negative_labels.shape)
-    criterion = nn.BCEWithLogitsLoss(pos_weight=(total_negative_labels / total_positive_labels).clamp(min=0.1, max=10))
+    criterion = nn.BCEWithLogitsLoss()
     print(len(list(model.parameters())))
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     for epoch in range(100):
@@ -170,7 +170,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(64 * 6, hiddens, 5579, submodules, 0.)
+    model = EnsembleModel(128 * 6, hiddens, 5579, submodules, 0.)
     if cuda:
         model = model.cuda()
     _train(data_manager, model)
