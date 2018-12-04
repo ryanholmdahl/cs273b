@@ -33,16 +33,16 @@ def _parse_args():
 
 def _load_data_manager(cuda):
     return EnsembleDataManager(cuda, 700, [
-        # (
-        #     ProteinDataManager, [
-        #         100,
-        #     ],
-        # ),
         (
-            TextDataManager, [
-                300, 50,
+            ProteinDataManager, [
+                100,
             ],
         ),
+        # (
+        #     TextDataManager, [
+        #         300, 50,
+        #     ],
+        # ),
         # (
         #     GoDataManager, []
         # ),
@@ -51,8 +51,8 @@ def _load_data_manager(cuda):
 
 def _load_submodules(data_manager):
     return (
-        # load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
-        load_text_models(data_manager.submodule_managers[0].vocab.n_words) # +
+        load_protein_models(data_manager.submodule_managers[0].vocab.n_words) # +
+        # load_text_models(data_manager.submodule_managers[0].vocab.n_words) # +
         # load_go_models(data_manager.submodule_managers[1].num_terms)
     )
 
@@ -77,9 +77,11 @@ def _train(data_manager, model):
     total_positive_labels = (
         data_manager.train_labels.sum(dim=0)
     )
+    print(total_positive_labels.shape)
     total_negative_labels = (
         (1. - data_manager.train_labels).sum(dim=0)
     )
+    print(total_negative_labels.shape)
     criterion = nn.BCEWithLogitsLoss(pos_weight=total_negative_labels/total_positive_labels)
     print(len(list(model.parameters())))
     optimizer = optim.Adam(model.parameters(), lr=0.001)
