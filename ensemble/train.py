@@ -2,10 +2,12 @@ from ensemble.model import EnsembleModel
 from ensemble.text.model import load_text_models
 from ensemble.protein.model import load_protein_models
 from ensemble.go.model import load_go_models
+from ensemble.liu.model import load_liu_models
 from ensemble.data_manager import EnsembleDataManager
 from ensemble.text.data_manager import TextDataManager
 from ensemble.protein.data_manager import ProteinDataManager
 from ensemble.go.data_manager import GoDataManager
+from ensemble.liu.data_manager import LiuDataManager
 import argparse
 import torch.nn as nn
 import torch.optim as optim
@@ -31,27 +33,31 @@ def _parse_args():
 
 def _load_data_manager(cuda):
     return EnsembleDataManager(cuda, 700, [
+        # (
+        #     ProteinDataManager, [
+        #         100,
+        #     ],
+        # ),
+        # (
+        #     TextDataManager, [
+        #         300, 50,
+        #     ],
+        # ),
+        # (
+        #     GoDataManager, []
+        # ),
         (
-            ProteinDataManager, [
-                100,
-            ],
-        ),
-        (
-            TextDataManager, [
-                300, 50,
-            ],
-        ),
-        (
-            GoDataManager, []
-        ),
+            LiuDataManager, []
+        )
     ])
 
 
 def _load_submodules(data_manager):
     return (
-        load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
-        load_text_models(data_manager.submodule_managers[1].vocab.n_words) +
-        load_go_models(data_manager.submodule_managers[2].num_terms)
+        # load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
+        # load_text_models(data_manager.submodule_managers[1].vocab.n_words) +
+        # load_go_models(data_manager.submodule_managers[2].num_terms)
+        load_liu_models(data_manager.submodule_managers[0].num_terms)
     )
 
 
@@ -163,7 +169,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(64 * 5, hiddens, 5579, submodules, 0.5)
+    model = EnsembleModel(64, hiddens, 5579, submodules, 0.5)
     if cuda:
         model = model.cuda()
     _train(data_manager, model)
