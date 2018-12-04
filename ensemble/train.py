@@ -90,7 +90,7 @@ def _train(data_manager, model):
     criterion = nn.BCEWithLogitsLoss()
     print(len(list(model.parameters())))
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    for epoch in range(100):
+    for epoch in range(1000):
         for i in range(0, len(data_manager.train_dbids), 128):
             train_inputs, targets = data_manager.sample_train_batch(128)
             logits = model.forward(train_inputs)
