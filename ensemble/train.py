@@ -190,7 +190,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
         if epoch - last_update_epoch >= 50:
             break
 
-    return model
+    return mAP_micro_test
 
 
 def _main():
@@ -204,7 +204,13 @@ def _main():
                           dropout)
     if cuda:
         model = model.cuda()
-    _train(data_manager, model, epochs, use_pos_weights, single_pos_weight)
+    mAP_test = _train(data_manager, model, epochs, use_pos_weights, single_pos_weight)
+    torch.save(model.state_dict(), '{}_{}_{}_{}_{}_{}_{}.pt'.format(hiddens, dropout, embed_dims, embedders,
+                                                                    use_pos_weights, single_pos_weight, epochs))
+    with open('{}_{}_{}_{}_{}_{}_{}.pt'.format(hiddens, dropout, embed_dims, embedders,
+                                                                    use_pos_weights, single_pos_weight, epochs),
+              'wt') as outfile:
+        print(mAP_test, file=outfile)
 
 
 if __name__ == '__main__':
