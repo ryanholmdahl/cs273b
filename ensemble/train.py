@@ -34,16 +34,16 @@ def _parse_args():
 
 def _load_data_manager(cuda):
     return EnsembleDataManager(cuda, 800, [
-        # (
-        #     ProteinDataManager, [
-        #         100,
-        #     ],
-        # ),
         (
-            TextDataManager, [
-                300, 50,
+            ProteinDataManager, [
+                100,
             ],
         ),
+        # (
+        #     TextDataManager, [
+        #         300, 50,
+        #     ],
+        # ),
         # (
         #     GoDataManager, []
         # ),
@@ -52,8 +52,8 @@ def _load_data_manager(cuda):
 
 def _load_submodules(data_manager):
     return (
-        # load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
-        load_text_models(data_manager.submodule_managers[0].vocab.n_words) # +
+        load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
+        # load_text_models(data_manager.submodule_managers[0].vocab.n_words) # +
         # load_go_models(data_manager.submodule_managers[1].num_terms)
     )
 
@@ -94,8 +94,8 @@ def _train(data_manager, model):
             optimizer.step()
             optimizer.zero_grad()
             bar.suffix = '({epoch}/{max_epochs}) | TLoss: {train_loss:.3f} | DLoss: {dev_loss:.3f} ' \
-                         '| Acc: {acc:.3f} | P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| mAP: {mAP:.3f} ' \
-                         '| dev mAP {mAP_best:.3f} | test mAP {mAP_test:.3f}' \
+                         '| Acc: {acc:.3f} | P: {p:.3f}| R: {r:.3f}| F: {f:.3f}| davg mAP: {mAP:.3f} ' \
+                         '| dbest mAP {mAP_best:.3f} | test mAP {mAP_test:.3f}' \
                 .format(
                         epoch=epoch,
                         max_epochs=100,
@@ -105,7 +105,7 @@ def _train(data_manager, model):
                         p=p_micro.avg,
                         r=r_micro.avg,
                         f=f_micro.avg,
-                        mAP=mAP_macro.avg,
+                        mAP=mAP_micro.avg,
                         mAP_best=best_mAP_micro_dev,
                         mAP_test=mAP_micro_test
                 )
@@ -163,7 +163,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(32 * 3, hiddens, 1121, submodules, 0.25)
+    model = EnsembleModel(32, hiddens, 5579, submodules, 0.25)
     if cuda:
         model = model.cuda()
     _train(data_manager, model)
