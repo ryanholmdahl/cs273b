@@ -35,7 +35,7 @@ def _parse_args():
     parser.add_argument('--single_pos_weight', action='store_true')
     parser.add_argument('--epochs', type=int)
     args = parser.parse_args()
-    return args.cuda, args.hiddens, args.dropout, args.embed_dims, args.embedders, args.use_pos_weights, \
+    return args.cuda, args.hiddens, args.dropout, args.embed_dims, args.embedders, args.use_pos_weight, \
            args.single_pos_weight, args.epochs
 
 
