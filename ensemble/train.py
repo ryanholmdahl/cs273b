@@ -74,10 +74,10 @@ def _load_submodules(data_manager, embedder_names, embed_size):
         models += load_text_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size)
         manager_idx += 1
     if 'go' in embedder_names:
-        models += load_go_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size)
+        models += load_go_models(data_manager.submodule_managers[manager_idx].num_terms, embed_size)
         manager_idx += 1
     if 'liu' in embedder_names:
-        models += load_liu_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size)
+        models += load_liu_models(data_manager.submodule_managers[manager_idx].num_terms, embed_size)
         manager_idx += 1
     return models
 
