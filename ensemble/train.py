@@ -32,7 +32,7 @@ def _parse_args():
 
 
 def _load_data_manager(cuda):
-    return EnsembleDataManager(cuda, 600, [
+    return EnsembleDataManager(cuda, 700, [
         (
             ProteinDataManager, [
                 100,
@@ -117,10 +117,10 @@ def _train(data_manager, model):
                 )
             bar.next()
 
-        dev_inputs, targets = data_manager.sample_dev_batch(171)
+        dev_inputs, targets = data_manager.sample_dev_batch(71)
         logits = model.forward(dev_inputs)
         loss = criterion(logits, targets)
-        dev_losses.update(loss.item(), 171)
+        dev_losses.update(loss.item(), 71)
         (batch_p_micro,
          batch_r_micro,
          batch_f_micro,
@@ -132,16 +132,16 @@ def _train(data_manager, model):
          batch_mAP_micro,
          batch_mAP_macro,
          batch_acc) = compute_metrics(logit=logits, target=targets)
-        p_macro.update(batch_p_macro, 171)
-        p_micro.update(batch_p_micro, 171)
-        r_macro.update(batch_r_macro, 171)
-        r_micro.update(batch_r_micro, 171)
-        f_macro.update(batch_f_macro, 171)
-        f_micro.update(batch_f_micro, 171)
-        s_macro.update(batch_s_macro, 171)
-        mAP_micro.update(batch_mAP_micro, 171)
-        mAP_macro.update(batch_mAP_macro, 171)
-        acc.update(batch_acc, 171)
+        p_macro.update(batch_p_macro, 71)
+        p_micro.update(batch_p_micro, 71)
+        r_macro.update(batch_r_macro, 71)
+        r_micro.update(batch_r_micro, 71)
+        f_macro.update(batch_f_macro, 71)
+        f_micro.update(batch_f_micro, 71)
+        s_macro.update(batch_s_macro, 71)
+        mAP_micro.update(batch_mAP_micro, 71)
+        mAP_macro.update(batch_mAP_macro, 71)
+        acc.update(batch_acc, 71)
         if min_dev_loss > dev_losses.avg:  # batch_mAP_micro > best_mAP_micro_dev:
             min_dev_loss = dev_losses.avg
             best_mAP_micro_dev = batch_mAP_micro
@@ -170,7 +170,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(64 * 6, hiddens, 5579, submodules, 0.)
+    model = EnsembleModel(128 * 6, hiddens, 5579, submodules, 0.)
     if cuda:
         model = model.cuda()
     _train(data_manager, model)
