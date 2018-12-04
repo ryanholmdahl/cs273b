@@ -14,12 +14,12 @@ class LiuDataManager(DataManager):
     def __init__(self, train_dbids, dev_dbids, test_dbids, use_cuda):
         super(LiuDataManager, self).__init__(train_dbids, dev_dbids, test_dbids, use_cuda)
         print('Initializing LiuDataManager...')
-        with open('/home/ryanlh/train_dbids_munoz.txt', 'rb') as infile:
+        with open('/home/ryanlh/train_dbids_munoz.txt', 'rt') as infile:
             reader = csv.reader(infile)
             train_dbid_order = {
                 row[0]: i for i, row in enumerate(reader)
             }
-        with open('/home/ryanlh/test_dbids_munoz.txt', 'rb') as infile:
+        with open('/home/ryanlh/test_dbids_munoz.txt', 'rt') as infile:
             reader = csv.reader(infile)
             test_dbid_order = {
                 row[0]: i for i, row in enumerate(reader)
