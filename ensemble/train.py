@@ -33,19 +33,19 @@ def _parse_args():
 
 def _load_data_manager(cuda):
     return EnsembleDataManager(cuda, 600, [
-        (
-            ProteinDataManager, [
-                100,
-            ],
-        ),
-        (
-            TextDataManager, [
-                300, 50,
-            ],
-        ),
-        (
-            GoDataManager, []
-        ),
+        # (
+        #     ProteinDataManager, [
+        #         100,
+        #     ],
+        # ),
+        # (
+        #     TextDataManager, [
+        #         300, 50,
+        #     ],
+        # ),
+        # (
+        #     GoDataManager, []
+        # ),
         (
             LiuDataManager, []
         )
@@ -54,10 +54,10 @@ def _load_data_manager(cuda):
 
 def _load_submodules(data_manager):
     return (
-        load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
-        load_text_models(data_manager.submodule_managers[1].vocab.n_words) +
-        load_go_models(data_manager.submodule_managers[2].num_terms) +
-        load_liu_models(data_manager.submodule_managers[3].num_terms)
+        # load_protein_models(data_manager.submodule_managers[0].vocab.n_words) +
+        # load_text_models(data_manager.submodule_managers[1].vocab.n_words) +
+        # load_go_models(data_manager.submodule_managers[2].num_terms) +
+        load_liu_models(data_manager.submodule_managers[0].num_terms)
     )
 
 
@@ -77,6 +77,7 @@ def _train(data_manager, model):
     best_mAP_micro_dev = 0.
     min_dev_loss = 1000.
     mAP_micro_test = 0.
+    max_mAP_test = 0.
     acc = AverageMeter()
     total_positive_labels = (
         data_manager.train_labels.sum(dim=0)
@@ -169,7 +170,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(64 * 6, hiddens, 5579, submodules, 0.25)
+    model = EnsembleModel(data_manager.submodule_managers[0].num_terms, hiddens, 5579, submodules, 0.)
     if cuda:
         model = model.cuda()
     _train(data_manager, model)

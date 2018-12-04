@@ -16,4 +16,5 @@ class LiuEmbeddingModel(nn.Module):
         )
 
     def forward(self, go_terms):
-        return self.base(go_terms)
+        return go_terms
+        # return self.base(go_terms)
