@@ -130,7 +130,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
                          '| dbest mAP {mAP_best:.3f} | test mAP {mAP_test:.3f}' \
                 .format(
                         epoch=epoch,
-                        max_epochs=100,
+                        max_epochs=epochs,
                         train_loss=train_losses.avg,
                         dev_loss=dev_losses.avg,
                         acc=acc.avg,
