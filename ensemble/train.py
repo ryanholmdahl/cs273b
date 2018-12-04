@@ -35,9 +35,11 @@ def _parse_args():
     parser.add_argument('--use_pos_weight', action='store_true')
     parser.add_argument('--single_pos_weight', action='store_true')
     parser.add_argument('--epochs', type=int)
+    parser.add_argument('--true_ensemble', action='store_true')
+    parser.add_argument('--preload_dirs', nargs='+')
     args = parser.parse_args()
     return args.cuda, args.hiddens, args.dropout, args.embed_dims, args.embedders, args.use_pos_weight, \
-           args.single_pos_weight, args.epochs
+           args.single_pos_weight, args.epochs, args.true_ensemble, args.preload_dirs
 
 
 def _load_data_manager(cuda, embedder_names):
@@ -65,7 +67,7 @@ def _load_data_manager(cuda, embedder_names):
     return EnsembleDataManager(cuda, 700, embedders)
 
 
-def _load_submodules(data_manager, embedder_names, embed_size):
+def _load_submodules(data_manager, embedder_names, embed_size, preload_dirs):
     manager_idx = 0
     models = []
     if 'protein' in embedder_names:
@@ -80,6 +82,12 @@ def _load_submodules(data_manager, embedder_names, embed_size):
     if 'liu' in embedder_names:
         models += load_liu_models(data_manager.submodule_managers[manager_idx].num_terms, embed_size)
         manager_idx += 1
+    for model in models:
+        for preload_dir in preload_dirs:
+            for fname in os.listdir(preload_dir):
+                if fname == model.file_name:
+                    print('loading {}'.format(os.path.join(preload_dir, fname)))
+                    model.load_state_dict(torch.load(os.path.join(preload_dir, fname)))
     return models
 
 
@@ -195,14 +203,15 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
 
 
 def _main():
-    cuda, hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs = _parse_args()
+    cuda, hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs, true_ensemble, \
+        preload_dirs = _parse_args()
     print('Loading data manager...')
     data_manager = _load_data_manager(cuda, embedders)
     print('Data manager loaded.')
-    submodules = _load_submodules(data_manager, embedders, embed_dims)
+    submodules = _load_submodules(data_manager, embedders, embed_dims, preload_dirs)
     data_manager.connect_to_model(submodules)
     model = EnsembleModel(embed_dims * (len(embedders) + (2 if 'text' in embedders else 0)), hiddens, 5579, submodules,
-                          dropout)
+                          dropout, true_ensemble)
     if cuda:
         model = model.cuda()
     mAP_test = _train(data_manager, model, epochs, use_pos_weights, single_pos_weight)

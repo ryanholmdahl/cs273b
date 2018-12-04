@@ -3,7 +3,7 @@ import torch
 
 
 class EnsembleModel(nn.Module):
-    def __init__(self, embed_dim, hidden_dims, output_dim, submodules, dropout):
+    def __init__(self, embed_dim, hidden_dims, output_dim, submodules, dropout, true_ensemble):
         super(EnsembleModel, self).__init__()
         self.submodules = submodules
         fcs = []
@@ -19,8 +19,9 @@ class EnsembleModel(nn.Module):
         fcs.append(nn.Linear(prev_dim, output_dim))
         self.fc = nn.Sequential(nn.Dropout(dropout), *fcs)
 
-        for i, submodule in enumerate(self.submodules):
-            self.add_module('submodule{}'.format(i), submodule)
+        if not true_ensemble:
+            for i, submodule in enumerate(self.submodules):
+                self.add_module('submodule{}'.format(i), submodule)
 
     def forward(self, submodule_inputs):
         embeds = [submodule(*submodule_input)
