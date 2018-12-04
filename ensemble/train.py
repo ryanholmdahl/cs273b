@@ -71,6 +71,7 @@ def _train(data_manager, model):
     mAP_micro = AverageMeter()
     mAP_macro = AverageMeter()
     best_mAP_micro_dev = 0.
+    min_dev_loss = 1000.
     mAP_micro_test = 0.
     acc = AverageMeter()
     total_positive_labels = (
@@ -135,7 +136,8 @@ def _train(data_manager, model):
         mAP_micro.update(batch_mAP_micro, 71)
         mAP_macro.update(batch_mAP_macro, 71)
         acc.update(batch_acc, 71)
-        if batch_mAP_micro > best_mAP_micro_dev:
+        if min_dev_loss > loss.item():  # batch_mAP_micro > best_mAP_micro_dev:
+            min_dev_loss = loss.item()
             best_mAP_micro_dev = batch_mAP_micro
             test_inputs, targets = data_manager.sample_test_batch(309)
             logits = model.forward(test_inputs)
