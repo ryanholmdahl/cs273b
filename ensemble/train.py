@@ -196,7 +196,7 @@ def _main():
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager, embedders, embed_dims)
     data_manager.connect_to_model(submodules)
-    model = EnsembleModel(embed_dims * (len(embedders) + 2 if 'text' in embedders else 0), hiddens, 5579, submodules,
+    model = EnsembleModel(embed_dims * (len(embedders) + (2 if 'text' in embedders else 0)), hiddens, 5579, submodules,
                           dropout)
     if cuda:
         model = model.cuda()
