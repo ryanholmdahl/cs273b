@@ -12,8 +12,8 @@ class EnsembleModel(nn.Module):
             fcs.append(nn.Sequential(
                 nn.Linear(prev_dim, hidden_dim),
                 # nn.BatchNorm1d(hidden_dim),
-                nn.ReLU(),
-                # nn.Sigmoid(),
+                # nn.ReLU(),
+                nn.Sigmoid(),
                 # nn.Dropout(dropout),
             ))
             prev_dim = hidden_dim
