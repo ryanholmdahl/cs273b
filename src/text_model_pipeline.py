@@ -27,7 +27,7 @@ def compute_metrics(logit, target):
         #     if ap >= 0:
         #         aps.append(ap)
         # mAP_macro = sum(aps) / len(aps)
-        mAP_micro = 0.
+        mAP_macro = 0.
         mAP_micro = sklearn.metrics.average_precision_score(y_true=target, y_score=prob, average='micro')
 
     if not s_macro:
