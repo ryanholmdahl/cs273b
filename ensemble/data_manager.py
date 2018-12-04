@@ -55,14 +55,24 @@ class EnsembleDataManager:
             dbid: i for i, dbid in enumerate(self.test_dbids)
         }
 
-        with open(constant.TRAIN_LABELS, "rb") as fd:
-            train_label_dict = pickle.load(fd)
-        with open(constant.TEST_LABELS, "rb") as fd:
-            test_label_dict = pickle.load(fd)
+        with open(constant.TRAIN_LABEL_MATRIX, 'rb') as fd:
+            train_label_matrix = pickle.load(fd)
 
-        self.train_labels = torch.Tensor([train_label_dict[dbid] for dbid in self.train_dbids])
-        self.dev_labels = torch.Tensor([train_label_dict[dbid] for dbid in self.dev_dbids])
-        self.test_labels = torch.Tensor([test_label_dict[dbid] for dbid in self.test_dbids])
+        with open(constant.TEST_LABEL_MATRIX, 'rb') as fd:
+            test_label_matrix = pickle.load(fd)
+
+        self.train_labels = torch.Tensor(train_label_matrix[:train_num_drugs, :])
+        self.dev_labels = torch.Tensor(train_label_matrix[train_num_drugs:, :])
+        self.test_labels = torch.Tensor(test_label_matrix)
+
+        # with open(constant.TRAIN_LABELS, "rb") as fd:
+        #     train_label_dict = pickle.load(fd)
+        # with open(constant.TEST_LABELS, "rb") as fd:
+        #     test_label_dict = pickle.load(fd)
+        #
+        # self.train_labels = torch.Tensor([train_label_dict[dbid] for dbid in self.train_dbids])
+        # self.dev_labels = torch.Tensor([train_label_dict[dbid] for dbid in self.dev_dbids])
+        # self.test_labels = torch.Tensor([test_label_dict[dbid] for dbid in self.test_dbids])
         if cuda:
             self.train_labels = self.train_labels.cuda()
             self.dev_labels = self.dev_labels.cuda()

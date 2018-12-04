@@ -14,13 +14,13 @@ from src.text_model_pipeline import compute_metrics
 from pytorch_classification.utils import AverageMeter, Bar
 
 
-# TODO: plots of AP by class
+# TODO: retrain models on SIDER 4
+# TODO: change BCE pos weight to be a vector
 # TODO: freeze embeddings
-# TODO: smaller/shuffled dev set?
 # TODO: try removing text submodules
+# TODO: true ensemble (no shared differentiability)
 # TODO: run more epochs
 # TODO: train mAP
-# TODO: true ensemble (no shared differentiability)
 # TODO: load checkpoints
 
 
@@ -71,17 +71,17 @@ def _train(data_manager, model):
     s_macro = AverageMeter()
     mAP_micro = AverageMeter()
     mAP_macro = AverageMeter()
-    best_mAP_macro = 0.
-    mAP_macro_test = 0.
+    best_mAP_micro_dev = 0.
+    mAP_micro_test = 0.
     acc = AverageMeter()
     total_positive_labels = (
-        data_manager.train_labels.sum() + data_manager.dev_labels.sum() + data_manager.test_labels.sum()
+        data_manager.train_labels.sum()
     )
     total_labels = (
-        data_manager.train_labels.nelement() + data_manager.dev_labels.nelement() + data_manager.test_labels.nelement()
+        data_manager.train_labels.nelement()
     )
     print(total_labels/total_positive_labels)
-    criterion = nn.BCEWithLogitsLoss(pos_weight=total_labels/total_positive_labels)
+    criterion = nn.BCEWithLogitsLoss(pos_weight=(total_labels - total_positive_labels)/total_positive_labels)
     print(len(list(model.parameters())))
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     for epoch in range(100):
@@ -106,8 +106,8 @@ def _train(data_manager, model):
                         r=r_micro.avg,
                         f=f_micro.avg,
                         mAP=mAP_macro.avg,
-                        mAP_best=best_mAP_macro,
-                        mAP_test=mAP_macro_test
+                        mAP_best=best_mAP_micro_dev,
+                        mAP_test=mAP_micro_test
                 )
             bar.next()
 
@@ -136,8 +136,8 @@ def _train(data_manager, model):
         mAP_micro.update(batch_mAP_micro, 121)
         mAP_macro.update(batch_mAP_macro, 121)
         acc.update(batch_acc, 121)
-        if batch_mAP_micro > best_mAP_macro:
-            best_mAP_macro = batch_mAP_micro
+        if batch_mAP_micro > best_mAP_micro_dev:
+            best_mAP_micro_dev = batch_mAP_micro
             test_inputs, targets = data_manager.sample_test_batch(154)
             logits = model.forward(test_inputs)
             (batch_p_micro,
@@ -151,7 +151,7 @@ def _train(data_manager, model):
              batch_mAP_micro,
              batch_mAP_macro,
              batch_acc) = compute_metrics(logit=logits, target=targets)
-            mAP_macro_test = batch_mAP_micro
+            mAP_micro_test = batch_mAP_micro
 
     return model
 
