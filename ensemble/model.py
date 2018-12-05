@@ -23,6 +23,7 @@ class EnsembleModel(nn.Module):
             self.add_module('submodule{}'.format(i), submodule)
             if true_ensemble:
                 for param in submodule.parameters():
+                    print('freezing param')
                     param.requires_grad = False
 
     def forward(self, submodule_inputs):
