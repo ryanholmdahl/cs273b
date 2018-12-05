@@ -215,8 +215,8 @@ def _main():
     if cuda:
         model = model.cuda()
     mAP_test = _train(data_manager, model, epochs, use_pos_weights, single_pos_weight)
-    output_dir = '{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
-                                               single_pos_weight, epochs)
+    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
+                                               single_pos_weight, epochs, true_ensemble)
     for submodule in submodules:
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
