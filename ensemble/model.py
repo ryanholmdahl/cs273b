@@ -24,8 +24,6 @@ class EnsembleModel(nn.Module):
             if true_ensemble:
                 for param in submodule.parameters():
                     param.requires_grad = False
-        for param in self.parameters():
-            param.requires_grad = False
 
     def forward(self, submodule_inputs):
         embeds = [submodule(*submodule_input)

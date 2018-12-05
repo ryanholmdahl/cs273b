@@ -28,7 +28,7 @@ from pytorch_classification.utils import AverageMeter, Bar
 def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cuda', action='store_true')
-    parser.add_argument('--hiddens', nargs='+', type=int)
+    parser.add_argument('--hiddens', nargs='*', type=int, default=[])
     parser.add_argument('--dropout', type=float, default=0.2)
     parser.add_argument('--embed_dims', type=int, default=32)
     parser.add_argument('--embedders', nargs='+')
