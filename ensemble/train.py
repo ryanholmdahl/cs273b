@@ -124,7 +124,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
         criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     else:
         criterion = nn.BCEWithLogitsLoss()
-    print(len(list(model.parameters())))
+    print(len(list(model.parameters())), len([param for param in model.parameters() if param.requires_grad]))
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     for epoch in range(epochs):
         for i in range(0, len(data_manager.train_dbids), 128):
