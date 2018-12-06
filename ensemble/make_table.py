@@ -47,4 +47,4 @@ with open('table.csv', 'wt') as outfile:
     writer.writerow(['hiddens', 'dropout', 'embed_dim', 'uses_text', 'uses_protein', 'uses_liu', 'pos_weights',
                      'average_pos_weight', 'ensemble', 'preloaded', 'unfreeze_embeds'])
     for entry in entries:
-        writer.write(entry)
+        writer.writerow(entry)
