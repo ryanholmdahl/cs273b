@@ -205,8 +205,8 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
 def _main():
     cuda, hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs, true_ensemble, \
         preload_dirs = _parse_args()
-    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
-                                                  single_pos_weight, epochs, true_ensemble)
+    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
+                                                  single_pos_weight, epochs, true_ensemble, len(preload_dirs) > 0)
     print('Loading data manager...')
     data_manager = _load_data_manager(cuda, embedders)
     print('Data manager loaded.')
