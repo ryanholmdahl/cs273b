@@ -205,18 +205,21 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
 def _main():
     cuda, hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs, true_ensemble, \
         preload_dirs = _parse_args()
+    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
+                                                  single_pos_weight, epochs, true_ensemble)
     print('Loading data manager...')
     data_manager = _load_data_manager(cuda, embedders)
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager, embedders, embed_dims, preload_dirs)
     data_manager.connect_to_model(submodules)
+    if os.path.exists(output_dir):
+        if all([os.path.exists(os.path.join(output_dir, submodule.file_name)) for submodule in submodules]):
+            print('Already saved. Terminating')
     model = EnsembleModel(embed_dims * (len(embedders) + (2 if 'text' in embedders else 0)), hiddens, 5579, submodules,
                           dropout, true_ensemble)
     if cuda:
         model = model.cuda()
     mAP_test = _train(data_manager, model, epochs, use_pos_weights, single_pos_weight)
-    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
-                                               single_pos_weight, epochs, true_ensemble)
     for submodule in submodules:
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
