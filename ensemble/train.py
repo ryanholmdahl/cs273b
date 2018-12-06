@@ -37,9 +37,10 @@ def _parse_args():
     parser.add_argument('--epochs', type=int)
     parser.add_argument('--true_ensemble', action='store_true')
     parser.add_argument('--preload_dirs', nargs='*', default=[])
+    parser.add_argument('--unfreeze', action='store_true')
     args = parser.parse_args()
     return args.cuda, args.hiddens, args.dropout, args.embed_dims, args.embedders, args.use_pos_weight, \
-           args.single_pos_weight, args.epochs, args.true_ensemble, args.preload_dirs
+           args.single_pos_weight, args.epochs, args.true_ensemble, args.preload_dirs, args.unfreeze
 
 
 def _load_data_manager(cuda, embedder_names):
@@ -67,14 +68,14 @@ def _load_data_manager(cuda, embedder_names):
     return EnsembleDataManager(cuda, 700, embedders)
 
 
-def _load_submodules(data_manager, embedder_names, embed_size, preload_dirs):
+def _load_submodules(data_manager, embedder_names, embed_size, preload_dirs, unfreeze):
     manager_idx = 0
     models = []
     if 'protein' in embedder_names:
         models += load_protein_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size)
         manager_idx += 1
     if 'text' in embedder_names:
-        models += load_text_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size)
+        models += load_text_models(data_manager.submodule_managers[manager_idx].vocab.n_words, embed_size, unfreeze)
         manager_idx += 1
     if 'go' in embedder_names:
         models += load_go_models(data_manager.submodule_managers[manager_idx].num_terms, embed_size)
@@ -204,13 +205,14 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
 
 def _main():
     cuda, hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs, true_ensemble, \
-        preload_dirs = _parse_args()
-    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
-                                                  single_pos_weight, epochs, true_ensemble, len(preload_dirs) > 0)
+        preload_dirs, unfreeze = _parse_args()
+    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
+                                                        single_pos_weight, epochs, true_ensemble, len(preload_dirs) > 0,
+                                                        unfreeze)
     print('Loading data manager...')
     data_manager = _load_data_manager(cuda, embedders)
     print('Data manager loaded.')
-    submodules = _load_submodules(data_manager, embedders, embed_dims, preload_dirs)
+    submodules = _load_submodules(data_manager, embedders, embed_dims, preload_dirs, unfreeze)
     data_manager.connect_to_model(submodules)
     if os.path.exists(output_dir):
         if all([os.path.exists(os.path.join(output_dir, submodule.file_name)) for submodule in submodules]):
