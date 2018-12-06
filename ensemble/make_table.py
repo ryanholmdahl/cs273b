@@ -38,7 +38,7 @@ for dirname in os.listdir('.'):
     preloaded = bool(preloaded)
     unfreeze = bool(unfreeze)
     with open(os.path.join(dirname, 'map_test.txt'), 'rt') as infile:
-        mAP = int(infile.readlines()[0].strip())
+        mAP = float(infile.readlines()[0].strip())
     entries.append([hiddens, dropout, embed_dims, 'text' in embedders, 'protein' in embedders, 'liu' in embedders,
                     use_pos_weights, single_pos_weight, true_ensemble, preloaded, unfreeze, mAP])
 
