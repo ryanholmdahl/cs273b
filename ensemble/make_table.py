@@ -25,12 +25,13 @@ for dirname in os.listdir('.'):
     if len(props) == 10:
         hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs, true_ensemble, \
             preloaded, unfreeze = props
-    print(hiddens)
-    print(hiddens.strip('[]').split())
     hiddens = [int(h) for h in hiddens.strip('[]').split()]
     dropout = float(dropout)
     embed_dims = int(embed_dims)
-    embedders = [h.strip("'") for h in hiddens.strip('[]').split()]
+    print(embedders)
+    print(embedders.strip('[]'))
+    print(embedders.strip('[]').split())
+    embedders = [h.strip("'") for h in embedders.strip('[]').split()]
     use_pos_weights = bool(use_pos_weights)
     single_pos_weight = bool(single_pos_weight)
     epochs = int(epochs)
