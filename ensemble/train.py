@@ -215,6 +215,7 @@ def _main():
     if os.path.exists(output_dir):
         if all([os.path.exists(os.path.join(output_dir, submodule.file_name)) for submodule in submodules]):
             print('Already saved. Terminating')
+            exit()
     model = EnsembleModel(embed_dims * (len(embedders) + (2 if 'text' in embedders else 0)), hiddens, 5579, submodules,
                           dropout, true_ensemble)
     if cuda:
