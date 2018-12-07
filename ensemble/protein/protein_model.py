@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-import src.dataman.vocab as vocab
+import protein.vocab as vocab
 
 
 class RNNEncoder(nn.Module):
@@ -39,6 +39,7 @@ class ProteinEmbeddingModel(nn.Module):
         self.aa_embed = nn.Embedding(config.n_embed, config.embedding_size, padding_idx=vocab.PAD_token)
         self.encoder = RNNEncoder(config)
         self.file_name = 'protein.pt'
+        print(config)
 
     def forward(
         self,
@@ -48,6 +49,8 @@ class ProteinEmbeddingModel(nn.Module):
         batch_size,
         cuda
     ):
+        print("proteins_per:{}".format(proteins_per))
+        print("batch size:{}".format(batch_size))
         encoder_init_hidden = self.encoder.initHidden(batch_size * proteins_per, cuda)
         protein_rnn = self.encoder(
                 inputs=protein_embed,
@@ -56,7 +59,12 @@ class ProteinEmbeddingModel(nn.Module):
         protein_rnn, _ = nn.utils.rnn.pad_packed_sequence(protein_rnn, padding_value=-np.infty)
         protein_rnn = protein_rnn.index_select(1, protein_unsort)  # [batch_size * proteins_per, max_protein_len]
         protein_rnn = protein_rnn.reshape(self.config.max_len, batch_size, proteins_per, -1)
-        protein_maxpool = torch.max(protein_rnn, 0)[0]
-        protein_maxpool = torch.max(protein_maxpool, dim=1)[0]  # [batch_size, embed_size]
+        
+        protein_rnn[protein_rnn == -np.infty] = 0.0 # replace -infty with 0.0
+        protein_per_sum = torch.sum(protein_rnn, dim=0) # sum embedding over all words
+        protein_mean = torch.mean(protein_per_sum, dim=1)
+        
+        #protein_maxpool = torch.max(protein_rnn, 0)[0]
+        #protein_maxpool = torch.max(protein_maxpool, dim=1)[0]  # [batch_size, embed_size]
 
-        return protein_maxpool
+        return protein_mean
