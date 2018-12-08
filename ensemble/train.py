@@ -221,15 +221,15 @@ def _main():
     output_dir = '{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
                                                            single_pos_weight, epochs, true_ensemble,
                                                            len(preload_dirs) > 0, unfreeze, lr)
+    if os.path.exists(output_dir):
+        # if all([os.path.exists(os.path.join(output_dir, submodule.file_name)) for submodule in submodules]):
+        print('Already saved. Terminating')
+        exit()
     print('Loading data manager...')
     data_manager = _load_data_manager(cuda, embedders)
     print('Data manager loaded.')
     submodules = _load_submodules(data_manager, embedders, embed_dims, preload_dirs, unfreeze)
     data_manager.connect_to_model(submodules)
-    if os.path.exists(output_dir):
-        if all([os.path.exists(os.path.join(output_dir, submodule.file_name)) for submodule in submodules]):
-            print('Already saved. Terminating')
-            exit()
     model = EnsembleModel(embed_dims * (len(embedders) + (2 if 'text' in embedders else 0)), hiddens, 5579, submodules,
                           dropout, true_ensemble)
     if cuda:
