@@ -37,12 +37,14 @@ def compute_map_by_se_freq(logit, target):
     prob = torch.sigmoid(logit).detach().cpu().numpy()
     target = target.cpu().numpy()
     freq = target.mean(axis=0)
-    aps = []
-    for se in range(len(target[0])):
-        ap = sklearn.metrics.average_precision_score(target[:, se].reshape((-1)), prob[:, se].reshape((-1)))
-        if ap >= 0:
-            aps.append((freq[se], ap))
-    return aps
+    ap = sklearn.metrics.average_precision_score(target, prob, average=None)
+    return [(freq[se], ap[se]) for se in range(len(ap)) if ap[se] >= 0]
+    # aps = []
+    # for se in range(len(target[0])):
+    #     ap = sklearn.metrics.average_precision_score(target[:, se].reshape((-1)), prob[:, se].reshape((-1)))
+    #     if ap >= 0:
+    #         aps.append((freq[se], ap))
+    # return aps
 
 
 def train(model, dm, loss_criterion, optimizer, args):

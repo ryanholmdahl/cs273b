@@ -210,7 +210,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight, lr):
         if epoch - last_update_epoch >= 50:
             break
 
-    return best_mAP_micro_dev, mAP_micro_test, train_loss_list, dev_loss_list, map_by_se_test
+    return best_mAP_micro_dev, mAP_micro_test, train_loss_list, dev_loss_list, mAP_by_se_test
 
 
 def _main():
