@@ -40,9 +40,10 @@ def _parse_args():
     parser.add_argument('--true_ensemble', action='store_true')
     parser.add_argument('--preload_dirs', nargs='*', default=[])
     parser.add_argument('--unfreeze', action='store_true')
+    parser.add_argument('--lr', type=float)
     args = parser.parse_args()
     return args.cuda, args.hiddens, args.dropout, args.embed_dims, args.embedders, args.use_pos_weight, \
-           args.single_pos_weight, args.epochs, args.true_ensemble, args.preload_dirs, args.unfreeze
+           args.single_pos_weight, args.epochs, args.true_ensemble, args.preload_dirs, args.unfreeze, args.lr
 
 
 def _load_data_manager(cuda, embedder_names):
@@ -94,7 +95,7 @@ def _load_submodules(data_manager, embedder_names, embed_size, preload_dirs, unf
     return models
 
 
-def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
+def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight, lr):
     bar = Bar('Processing', max=epochs*len(data_manager.train_dbids)/128)
     samples_seen = 0
     train_losses = AverageMeter()
@@ -131,7 +132,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
     else:
         criterion = nn.BCEWithLogitsLoss()
     print(len(list(model.parameters())), len([param for param in model.parameters() if param.requires_grad]))
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
     for epoch in range(epochs):
         for i in range(0, len(data_manager.train_dbids), 128):
             train_inputs, targets = data_manager.sample_train_batch(128)
@@ -214,10 +215,10 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
 
 def _main():
     cuda, hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs, true_ensemble, \
-        preload_dirs, unfreeze = _parse_args()
-    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
-                                                        single_pos_weight, epochs, true_ensemble, len(preload_dirs) > 0,
-                                                        unfreeze)
+        preload_dirs, unfreeze, lr = _parse_args()
+    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
+                                                           single_pos_weight, epochs, true_ensemble,
+                                                           len(preload_dirs) > 0, unfreeze, lr)
     print('Loading data manager...')
     data_manager = _load_data_manager(cuda, embedders)
     print('Data manager loaded.')
@@ -232,7 +233,7 @@ def _main():
     if cuda:
         model = model.cuda()
     best_mAP_dev, mAP_test, train_loss_list, dev_loss_list, mAP_by_se_freq = _train(
-        data_manager, model, epochs, use_pos_weights, single_pos_weight
+        data_manager, model, epochs, use_pos_weights, single_pos_weight, lr
     )
     for submodule in submodules:
         if not os.path.exists(output_dir):

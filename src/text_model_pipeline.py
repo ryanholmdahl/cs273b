@@ -36,7 +36,7 @@ def compute_metrics(logit, target):
 def compute_map_by_se_freq(logit, target):
     prob = torch.sigmoid(logit).detach().cpu().numpy()
     target = target.cpu().numpy()
-    freq = target.mean(dim=0)
+    freq = target.mean(axis=0)
     aps = []
     for se in range(len(target[0])):
         ap = sklearn.metrics.average_precision_score(target[:, se].reshape((-1)), prob[:, se].reshape((-1)))
