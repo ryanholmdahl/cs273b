@@ -189,26 +189,28 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight, lr):
         mAP_macro.update(batch_mAP_macro, 71)
         acc.update(batch_acc, 71)
         if best_mAP_micro_dev < batch_mAP_micro:  # batch_mAP_micro > best_mAP_micro_dev:
-            last_update_epoch = epoch
-            min_dev_loss = dev_losses.avg
             best_mAP_micro_dev = batch_mAP_micro
-            test_inputs, targets = data_manager.sample_test_batch(309)
-            logits = model.forward(test_inputs)
-            mAP_by_se_test = compute_map_by_se_freq(logits, targets)
-            (batch_p_micro,
-             batch_r_micro,
-             batch_f_micro,
-             batch_s_micro,
-             batch_p_macro,
-             batch_r_macro,
-             batch_f_macro,
-             batch_s_macro,
-             batch_mAP_micro,
-             batch_mAP_macro,
-             batch_acc) = compute_metrics(logit=logits, target=targets)
-            mAP_micro_test = batch_mAP_micro
+            torch.save(model.state_dict(), 'best_dev.pt')
+            last_update_epoch = epoch
         if epoch - last_update_epoch >= 50:
             break
+
+    model.load_state_dict(torch.load('best_dev.pt'))
+    test_inputs, targets = data_manager.sample_test_batch(309)
+    logits = model.forward(test_inputs)
+    mAP_by_se_test = compute_map_by_se_freq(logits, targets)
+    (batch_p_micro,
+     batch_r_micro,
+     batch_f_micro,
+     batch_s_micro,
+     batch_p_macro,
+     batch_r_macro,
+     batch_f_macro,
+     batch_s_macro,
+     batch_mAP_micro,
+     batch_mAP_macro,
+     batch_acc) = compute_metrics(logit=logits, target=targets)
+    mAP_micro_test = batch_mAP_micro
 
     return best_mAP_micro_dev, mAP_micro_test, train_loss_list, dev_loss_list, mAP_by_se_test
 
