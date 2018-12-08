@@ -14,6 +14,7 @@ import torch.optim as optim
 import torch
 from src.text_model_pipeline import compute_metrics
 import os
+import pickle
 from matplotlib import pyplot as plt
 
 from pytorch_classification.utils import AverageMeter, Bar
@@ -239,11 +240,17 @@ def _main():
         print(mAP_test, file=outfile)
     with open(os.path.join(output_dir, 'map_dev.txt'), 'wt') as outfile:
         print(best_mAP_dev, file=outfile)
+    with open(os.path.join(output_dir, 'train_loss_list.pkl'), 'wt') as outfile:
+        pickle.dump(train_loss_list, outfile)
+    with open(os.path.join(output_dir, 'dev_loss_list.pkl'), 'wt') as outfile:
+        pickle.dump(dev_loss_list, outfile)
     x_train, y_train = [t for t in zip(*train_loss_list)]
     x_dev, y_dev = [t for t in zip(*dev_loss_list)]
-    plt.plot(x_train, y_train, 'b', x_dev, y_dev, 'r')
+    plt.plot(x_train, y_train, 'b', label='Train')
+    plt.plot(x_dev, y_dev, 'r', label='Validation')
     plt.xlabel('Samples seen')
     plt.ylabel('Loss')
+    plt.legend()
     plt.savefig(os.path.join(output_dir, 'losses.png'))
 
 
