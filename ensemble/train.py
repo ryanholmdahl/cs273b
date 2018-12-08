@@ -14,6 +14,7 @@ import torch.optim as optim
 import torch
 from src.text_model_pipeline import compute_metrics
 import os
+from matplotlib import pyplot as plt
 
 from pytorch_classification.utils import AverageMeter, Bar
 
@@ -94,8 +95,11 @@ def _load_submodules(data_manager, embedder_names, embed_size, preload_dirs, unf
 
 def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
     bar = Bar('Processing', max=epochs*len(data_manager.train_dbids)/128)
+    samples_seen = 0
     train_losses = AverageMeter()
+    train_loss_list = []
     dev_losses = AverageMeter()
+    dev_loss_list = []
     p_micro = AverageMeter()
     r_micro = AverageMeter()
     f_micro = AverageMeter()
@@ -106,7 +110,6 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
     mAP_micro = AverageMeter()
     mAP_macro = AverageMeter()
     best_mAP_micro_dev = 0.
-    min_dev_loss = 1000.
     last_update_epoch = 0
     mAP_micro_test = 0.
     acc = AverageMeter()
@@ -132,7 +135,9 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
             train_inputs, targets = data_manager.sample_train_batch(128)
             logits = model.forward(train_inputs)
             loss = criterion(logits, targets)
+            samples_seen += 128
             train_losses.update(loss.item(), 128)
+            train_loss_list.append((samples_seen, loss.item()))
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
@@ -158,6 +163,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
         logits = model.forward(dev_inputs)
         loss = criterion(logits, targets)
         dev_losses.update(loss.item(), 71)
+        dev_loss_list.append((samples_seen, loss.item()))
         (batch_p_micro,
          batch_r_micro,
          batch_f_micro,
@@ -200,7 +206,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
         if epoch - last_update_epoch >= 50:
             break
 
-    return mAP_micro_test
+    return best_mAP_micro_dev, mAP_micro_test, train_loss_list, dev_loss_list
 
 
 def _main():
@@ -222,13 +228,23 @@ def _main():
                           dropout, true_ensemble)
     if cuda:
         model = model.cuda()
-    mAP_test = _train(data_manager, model, epochs, use_pos_weights, single_pos_weight)
+    best_mAP_dev, mAP_test, train_loss_list, dev_loss_list = _train(data_manager, model, epochs, use_pos_weights,
+                                                                    single_pos_weight)
     for submodule in submodules:
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
         torch.save(submodule.state_dict(), os.path.join(output_dir, submodule.file_name))
+    torch.save(model.state_dict(), os.path.join(output_dir, 'model.pt'))
     with open(os.path.join(output_dir, 'map_test.txt'), 'wt') as outfile:
         print(mAP_test, file=outfile)
+    with open(os.path.join(output_dir, 'map_dev.txt'), 'wt') as outfile:
+        print(best_mAP_dev, file=outfile)
+    x_train, y_train = [t for t in zip(*train_loss_list)]
+    x_dev, y_dev = [t for t in zip(*dev_loss_list)]
+    plt.plot(x_train, y_train, 'b', x_dev, y_dev, 'r')
+    plt.xlabel('Samples seen')
+    plt.ylabel('Loss')
+    plt.savefig(os.path.join(output_dir, 'losses.png'))
 
 
 if __name__ == '__main__':
