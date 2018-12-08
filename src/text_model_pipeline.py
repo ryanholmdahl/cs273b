@@ -20,13 +20,6 @@ def compute_metrics(logit, target):
             = sklearn.metrics.precision_recall_fscore_support(y_true=target, y_pred=pred, average='micro')
         p_macro, r_macro, f_macro, s_macro \
             = sklearn.metrics.precision_recall_fscore_support(y_true=target, y_pred=pred, average='macro')
-        # mAP_macro = sklearn.metrics.average_precision_score(y_true=target, y_score=prob, average='macro')
-        # aps = []
-        # for se in range(len(target[0])):
-        #     ap = sklearn.metrics.average_precision_score(target[:, se].reshape((-1)), prob[:, se].reshape((-1)))
-        #     if ap >= 0:
-        #         aps.append(ap)
-        # mAP_macro = sum(aps) / len(aps)
         mAP_macro = 0.
         mAP_micro = sklearn.metrics.average_precision_score(y_true=target, y_score=prob, average='micro')
 
@@ -38,6 +31,18 @@ def compute_metrics(logit, target):
     acc = np.sum(pred == target)/float(pred.size)
 
     return p_micro, r_micro, f_micro, s_micro, p_macro, r_macro, f_macro, s_macro, mAP_micro, mAP_macro, acc
+
+
+def compute_map_by_se_freq(logit, target):
+    prob = torch.sigmoid(logit).detach().cpu().numpy()
+    target = target.cpu().numpy()
+    freq = target.mean(dim=0)
+    aps = []
+    for se in range(len(target[0])):
+        ap = sklearn.metrics.average_precision_score(target[:, se].reshape((-1)), prob[:, se].reshape((-1)))
+        if ap >= 0:
+            aps.append((freq[se], ap))
+    return aps
 
 
 def train(model, dm, loss_criterion, optimizer, args):

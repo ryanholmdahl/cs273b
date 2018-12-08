@@ -12,7 +12,7 @@ import argparse
 import torch.nn as nn
 import torch.optim as optim
 import torch
-from src.text_model_pipeline import compute_metrics
+from src.text_model_pipeline import compute_metrics, compute_map_by_se_freq
 import os
 import pickle
 from matplotlib import pyplot as plt
@@ -113,6 +113,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
     best_mAP_micro_dev = 0.
     last_update_epoch = 0
     mAP_micro_test = 0.
+    mAP_by_se_test = None
     acc = AverageMeter()
     if use_pos_weight:
         total_positive_labels = (
@@ -192,6 +193,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
             best_mAP_micro_dev = batch_mAP_micro
             test_inputs, targets = data_manager.sample_test_batch(309)
             logits = model.forward(test_inputs)
+            mAP_by_se_test = compute_map_by_se_freq(logits, targets)
             (batch_p_micro,
              batch_r_micro,
              batch_f_micro,
@@ -207,7 +209,7 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight):
         if epoch - last_update_epoch >= 50:
             break
 
-    return best_mAP_micro_dev, mAP_micro_test, train_loss_list, dev_loss_list
+    return best_mAP_micro_dev, mAP_micro_test, train_loss_list, dev_loss_list, map_by_se_test
 
 
 def _main():
@@ -229,8 +231,9 @@ def _main():
                           dropout, true_ensemble)
     if cuda:
         model = model.cuda()
-    best_mAP_dev, mAP_test, train_loss_list, dev_loss_list = _train(data_manager, model, epochs, use_pos_weights,
-                                                                    single_pos_weight)
+    best_mAP_dev, mAP_test, train_loss_list, dev_loss_list, mAP_by_se_freq = _train(
+        data_manager, model, epochs, use_pos_weights, single_pos_weight
+    )
     for submodule in submodules:
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
@@ -240,10 +243,12 @@ def _main():
         print(mAP_test, file=outfile)
     with open(os.path.join(output_dir, 'map_dev.txt'), 'wt') as outfile:
         print(best_mAP_dev, file=outfile)
-    with open(os.path.join(output_dir, 'train_loss_list.pkl'), 'wt') as outfile:
+    with open(os.path.join(output_dir, 'train_loss_list.pkl'), 'wb') as outfile:
         pickle.dump(train_loss_list, outfile)
-    with open(os.path.join(output_dir, 'dev_loss_list.pkl'), 'wt') as outfile:
+    with open(os.path.join(output_dir, 'dev_loss_list.pkl'), 'wb') as outfile:
         pickle.dump(dev_loss_list, outfile)
+    with open(os.path.join(output_dir, 'map_by_se_freq.pkl'), 'wb') as outfile:
+        pickle.dump(mAP_by_se_freq, outfile)
     x_train, y_train = [t for t in zip(*train_loss_list)]
     x_dev, y_dev = [t for t in zip(*dev_loss_list)]
     plt.plot(x_train, y_train, 'b', label='Train')
@@ -252,6 +257,12 @@ def _main():
     plt.ylabel('Loss')
     plt.legend()
     plt.savefig(os.path.join(output_dir, 'losses.png'))
+    plt.clf()
+    x_freq, y_freq = [t for t in zip(*mAP_by_se_freq)]
+    plt.plot(x_freq, y_freq, 'go')
+    plt.xlabel('Side effect frequency (test set)')
+    plt.ylabel('Average precision')
+    plt.savefig(os.path.join(output_dir, 'map_by_freq.png'))
 
 
 if __name__ == '__main__':
