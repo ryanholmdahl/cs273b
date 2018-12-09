@@ -222,9 +222,11 @@ def _main():
                                                            single_pos_weight, epochs, true_ensemble,
                                                            len(preload_dirs) > 0, unfreeze, lr)
     if os.path.exists(output_dir):
-        # if all([os.path.exists(os.path.join(output_dir, submodule.file_name)) for submodule in submodules]):
-        print('Already saved. Terminating')
-        exit()
+        if os.path.exists(os.path.join(output_dir, 'map_test.txt')):
+            print('Already saved. Terminating')
+            exit()
+    else:
+        os.mkdir(output_dir)
     print('Loading data manager...')
     data_manager = _load_data_manager(cuda, embedders)
     print('Data manager loaded.')
@@ -238,8 +240,6 @@ def _main():
         data_manager, model, epochs, use_pos_weights, single_pos_weight, lr
     )
     # for submodule in submodules:
-    #     if not os.path.exists(output_dir):
-    #         os.mkdir(output_dir)
     #     torch.save(submodule.state_dict(), os.path.join(output_dir, submodule.file_name))
     # torch.save(model.state_dict(), os.path.join(output_dir, 'model.pt'))
     with open(os.path.join(output_dir, 'map_test.txt'), 'wt') as outfile:
