@@ -242,9 +242,9 @@ class TextEmbeddingModel(nn.Module):
         # act_maxpool = act_maxpool.index_select(1, act_unsort)
         act_rnn = act_rnn.index_select(1, act_unsort)
 
-        des_maxpool = torch.max(des_rnn, 0)[0]  # [batch_size, embed_size]
-        ind_maxpool = torch.max(ind_rnn, 0)[0]
-        act_maxpool = torch.max(act_rnn, 0)[0]
+        des_maxpool = torch.mean(des_rnn, 0)  # [batch_size, embed_size]
+        ind_maxpool = torch.mean(ind_rnn, 0)
+        act_maxpool = torch.mean(act_rnn, 0)
         # des_maxpool = torch.gather(des_rnn, 0,
         #                            (des_unsort_lens - 1).view(1, -1)
         #                            .unsqueeze(2).repeat(1, 1, self.config.hidden_size)).squeeze(0)
