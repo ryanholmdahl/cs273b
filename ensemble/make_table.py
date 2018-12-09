@@ -15,6 +15,7 @@ entries = []
 for dirname in os.listdir('.'):
     if not dirname.startswith('['):
         continue
+    print(dirname)
     props = dirname.split('_')
     assert 11 == len(props), props
     hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs, true_ensemble, \
