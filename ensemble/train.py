@@ -218,9 +218,10 @@ def _train(data_manager, model, epochs, use_pos_weight, single_pos_weight, lr):
 def _main():
     cuda, hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs, true_ensemble, \
         preload_dirs, unfreeze, lr = _parse_args()
-    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(hiddens, dropout, embed_dims, embedders, use_pos_weights,
-                                                           single_pos_weight, epochs, true_ensemble,
-                                                           len(preload_dirs) > 0, unfreeze, lr)
+    output_dir = '{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_model'.format(hiddens, dropout, embed_dims, embedders,
+                                                                use_pos_weights,
+                                                                single_pos_weight, epochs, true_ensemble,
+                                                                len(preload_dirs) > 0, unfreeze, lr)
     if os.path.exists(output_dir):
         if os.path.exists(os.path.join(output_dir, 'map_test.txt')):
             print('Already saved. Terminating')
@@ -239,9 +240,9 @@ def _main():
     best_mAP_dev, mAP_test, train_loss_list, dev_loss_list, mAP_by_se_freq = _train(
         data_manager, model, epochs, use_pos_weights, single_pos_weight, lr
     )
-    # for submodule in submodules:
-    #     torch.save(submodule.state_dict(), os.path.join(output_dir, submodule.file_name))
-    # torch.save(model.state_dict(), os.path.join(output_dir, 'model.pt'))
+    for submodule in submodules:
+        torch.save(submodule.state_dict(), os.path.join(output_dir, submodule.file_name))
+    torch.save(model.state_dict(), os.path.join(output_dir, 'model.pt'))
     with open(os.path.join(output_dir, 'map_test.txt'), 'wt') as outfile:
         print(mAP_test, file=outfile)
     with open(os.path.join(output_dir, 'map_dev.txt'), 'wt') as outfile:
