@@ -17,7 +17,8 @@ for dirname in os.listdir('.'):
         continue
     print(dirname)
     props = dirname.split('_')
-    assert 11 == len(props), props
+    if len(props) != 11:
+        continue
     hiddens, dropout, embed_dims, embedders, use_pos_weights, single_pos_weight, epochs, true_ensemble, \
         preloaded, unfreeze, lr = props
     hiddens = '/'.join([h for h in hiddens.strip('[]').split()])
