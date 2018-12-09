@@ -24,7 +24,6 @@ for dirname in os.listdir('.'):
     dropout = float(dropout)
     embed_dims = int(embed_dims)
     embedders = [h.strip("'") for h in embedders.strip('[]').split()]
-    assert len(embedders) == 1
     use_pos_weights = bool(use_pos_weights)
     single_pos_weight = bool(single_pos_weight)
     epochs = int(epochs)
@@ -40,8 +39,9 @@ for dirname in os.listdir('.'):
     except IndexError:
         print('ERROR')
         continue
-    if mAP_dev > best_by_embedder[embedders[0]][0]:
-        best_by_embedder[embedders[0]] = (mAP_dev, mAP_test, dirname)
+    if len(embedders) == 1:
+        if mAP_dev > best_by_embedder[embedders[0]][0]:
+            best_by_embedder[embedders[0]] = (mAP_dev, mAP_test, dirname)
     entries.append([hiddens, dropout, embed_dims, 'text' in embedders, 'protein' in embedders, 'liu' in embedders,
                     use_pos_weights, single_pos_weight, true_ensemble, preloaded, unfreeze, lr, mAP_dev, mAP_test])
 
