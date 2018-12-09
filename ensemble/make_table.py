@@ -32,10 +32,13 @@ for dirname in os.listdir('.'):
     preloaded = bool(preloaded)
     unfreeze = bool(unfreeze)
     lr = float(lr)
-    with open(os.path.join(dirname, 'map_test.txt'), 'rt') as infile:
-        mAP_test = float(infile.readlines()[0].strip())
-    with open(os.path.join(dirname, 'map_dev.txt'), 'rt') as infile:
-        mAP_dev = float(infile.readlines()[0].strip())
+    try:
+        with open(os.path.join(dirname, 'map_test.txt'), 'rt') as infile:
+            mAP_test = float(infile.readlines()[0].strip())
+        with open(os.path.join(dirname, 'map_dev.txt'), 'rt') as infile:
+            mAP_dev = float(infile.readlines()[0].strip())
+    except IndexError:
+        print('ERROR')
     if mAP_dev > best_by_embedder[embedders[0]][0]:
         best_by_embedder[embedders[0]] = (mAP_dev, dirname)
     entries.append([hiddens, dropout, embed_dims, 'text' in embedders, 'protein' in embedders, 'liu' in embedders,
