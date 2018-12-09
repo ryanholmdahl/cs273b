@@ -237,11 +237,11 @@ def _main():
     best_mAP_dev, mAP_test, train_loss_list, dev_loss_list, mAP_by_se_freq = _train(
         data_manager, model, epochs, use_pos_weights, single_pos_weight, lr
     )
-    for submodule in submodules:
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
-        torch.save(submodule.state_dict(), os.path.join(output_dir, submodule.file_name))
-    torch.save(model.state_dict(), os.path.join(output_dir, 'model.pt'))
+    # for submodule in submodules:
+    #     if not os.path.exists(output_dir):
+    #         os.mkdir(output_dir)
+    #     torch.save(submodule.state_dict(), os.path.join(output_dir, submodule.file_name))
+    # torch.save(model.state_dict(), os.path.join(output_dir, 'model.pt'))
     with open(os.path.join(output_dir, 'map_test.txt'), 'wt') as outfile:
         print(mAP_test, file=outfile)
     with open(os.path.join(output_dir, 'map_dev.txt'), 'wt') as outfile:
