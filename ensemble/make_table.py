@@ -6,9 +6,9 @@ import os
 import csv
 
 best_by_embedder = {
-    'liu': (0., None),
-    'protein': (0., None),
-    'text': (0., None),
+    'liu': (0., 0., None),
+    'protein': (0., 0., None),
+    'text': (0., 0., None),
 }
 
 entries = []
@@ -39,8 +39,9 @@ for dirname in os.listdir('.'):
             mAP_dev = float(infile.readlines()[0].strip())
     except IndexError:
         print('ERROR')
+        continue
     if mAP_dev > best_by_embedder[embedders[0]][0]:
-        best_by_embedder[embedders[0]] = (mAP_dev, dirname)
+        best_by_embedder[embedders[0]] = (mAP_dev, mAP_test, dirname)
     entries.append([hiddens, dropout, embed_dims, 'text' in embedders, 'protein' in embedders, 'liu' in embedders,
                     use_pos_weights, single_pos_weight, true_ensemble, preloaded, unfreeze, lr, mAP_dev, mAP_test])
 
